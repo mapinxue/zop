@@ -117,4 +117,25 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  html,
+  body {
+    @apply h-full overflow-hidden m-0 p-0;
+  }
+
+  #root {
+    @apply h-full overflow-hidden;
+  }
+
+  .app {
+    @apply h-screen flex flex-col overflow-hidden;
+  }
+
+  .container {
+    @apply flex-1 overflow-y-auto overflow-x-hidden p-8 max-w-6xl w-full mx-auto;
+  }
+
+  .page {
+    @apply animate-in fade-in duration-300;
+  }
 }

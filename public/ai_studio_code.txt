@@ -1,0 +1,27 @@
+<svg version="1.1" width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    /* 字体设置 */
+    .text { font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 220px; fill: black; }
+    /* 花朵颜色 */
+    .flower { fill: #F4A460; }
+    /* 花蕊样式 */
+    .center { fill: white; stroke: #E76F51; stroke-width: 2; }
+  </style>
+
+  <!-- 1. 字母 M -->
+  <text x="40" y="240" class="text">M</text>
+
+  <!-- 2. 左下角的花朵 -->
+  <g transform="translate(70, 230)">
+    <!-- 花瓣 -->
+    <circle cx="0" cy="-12" r="9" class="flower"/>
+    <circle cx="10" cy="-8" r="9" class="flower"/>
+    <circle cx="12" cy="4" r="9" class="flower"/>
+    <circle cx="6" cy="12" r="9" class="flower"/>
+    <circle cx="-6" cy="12" r="9" class="flower"/>
+    <circle cx="-12" cy="4" r="9" class="flower"/>
+    <circle cx="-10" cy="-8" r="9" class="flower"/>
+    <!-- 花蕊 -->
+    <circle cx="0" cy="0" r="7" class="center"/>
+  </g>
+</svg>
