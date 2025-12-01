@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Toolbar from "./components/Toolbar";
-import Navbar from "./components/Navbar";
+import AppSidebar from "./components/Sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Settings from "./pages/Settings";
@@ -10,15 +11,17 @@ function App() {
   return (
     <BrowserRouter>
       <div className="app">
-        <Toolbar />
-        <Navbar />
-        <main className="container">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </main>
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar />
+          <SidebarInset>
+            <Toolbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </SidebarInset>
+        </SidebarProvider>
       </div>
     </BrowserRouter>
   );

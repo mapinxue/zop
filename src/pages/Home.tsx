@@ -1,47 +1,18 @@
-import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { FileText } from "lucide-react";
 
 export default function Home() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
   return (
-    <div className="page space-y-6">
-      <h1 className="text-3xl font-bold text-foreground">首页</h1>
-      <p className="text-muted-foreground text-lg">欢迎使用 Tauri 应用！</p>
-
-      <div className="card bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Tauri 命令演示</h2>
-        <form
-          className="flex gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            greet();
-          }}
-        >
-          <input
-            id="greet-input"
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-            placeholder="输入你的名字..."
-            className="flex-1 px-4 py-2 rounded-md bg-background border border-input text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-          />
-          <button
-            type="submit"
-            className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
-          >
-            问候
-          </button>
-        </form>
-        {greetMsg && (
-          <p className="mt-4 text-lg text-primary font-medium animate-in fade-in duration-300">
-            {greetMsg}
-          </p>
-        )}
+    <div className="h-full flex items-center justify-center bg-background">
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
+            <FileText className="w-10 h-10 text-muted-foreground" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-semibold text-foreground">内容容器</h2>
+        <p className="text-muted-foreground max-w-md">
+          这是内容显示区域的占位符。选择左侧的项目来查看详细内容。
+        </p>
       </div>
     </div>
   );

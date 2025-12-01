@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
-import { Minus, Square, X, Pin, PinOff, Layers } from "lucide-react";
+import { Minus, Square, X, Pin, PinOff } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Toolbar() {
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
@@ -44,26 +45,29 @@ export default function Toolbar() {
     }
   };
 
+  const handleDragWindow = () => {
+    appWindow.startDragging();
+  };
+
   return (
-    <div
-      data-tauri-drag-region
-      className="flex items-center justify-between h-10 bg-background border-b border-border select-none"
-    >
-      {/* Left: Logo and Title */}
-      <div
-        data-tauri-drag-region
-        className="flex items-center gap-2 px-3 h-full"
-      >
-        <Layers className="w-5 h-5 text-primary" />
-        <span className="text-sm font-semibold text-foreground">Zop</span>
+    <div className="flex items-center justify-between h-[3.5rem] bg-background border-b border-border select-none">
+      {/* Left: Sidebar Toggle */}
+      <div className="flex items-center h-full px-2">
+        <SidebarTrigger />
       </div>
 
+      {/* Center: Draggable Area */}
+      <div
+        className="flex-1 h-full"
+        onMouseDown={handleDragWindow}
+      />
+
       {/* Right: Window Controls */}
-      <div className="flex items-center h-full">
+      <div className="flex items-center h-full shrink-0">
         {/* Always on Top Button */}
         <button
           onClick={handleToggleAlwaysOnTop}
-          className="h-full px-3 hover:bg-accent transition-colors"
+          className="h-full px-3 hover:bg-accent transition-colors flex items-center justify-center"
           title={isAlwaysOnTop ? "取消置顶" : "窗口置顶"}
         >
           {isAlwaysOnTop ? (
@@ -76,7 +80,7 @@ export default function Toolbar() {
         {/* Minimize */}
         <button
           onClick={handleMinimize}
-          className="h-full px-3 hover:bg-accent transition-colors"
+          className="h-full px-3 hover:bg-accent transition-colors flex items-center justify-center"
           title="最小化"
         >
           <Minus className="w-4 h-4 text-foreground" />
@@ -85,7 +89,7 @@ export default function Toolbar() {
         {/* Maximize/Restore */}
         <button
           onClick={handleMaximize}
-          className="h-full px-3 hover:bg-accent transition-colors"
+          className="h-full px-3 hover:bg-accent transition-colors flex items-center justify-center"
           title={isMaximized ? "还原" : "最大化"}
         >
           <Square className="w-3.5 h-3.5 text-foreground" />
@@ -94,7 +98,7 @@ export default function Toolbar() {
         {/* Close */}
         <button
           onClick={handleClose}
-          className="h-full px-3 hover:bg-destructive hover:text-white transition-colors"
+          className="h-full px-3 hover:bg-destructive hover:text-white transition-colors flex items-center justify-center"
           title="关闭"
         >
           <X className="w-4 h-4" />
