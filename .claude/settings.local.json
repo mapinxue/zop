@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm install react-router-dom)",
-      "Bash(cargo check)"
+      "Bash(cargo check)",
+      "Bash(npm install @xyflow/react)"
     ],
     "deny": [],
     "ask": []
