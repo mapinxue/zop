@@ -18,27 +18,33 @@ import {
   Home,
   Settings,
   Users,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const ICONS = [
-  { name: "folder", Icon: Folder },
-  { name: "file-text", Icon: FileText },
-  { name: "star", Icon: Star },
-  { name: "heart", Icon: Heart },
-  { name: "bookmark", Icon: Bookmark },
-  { name: "flag", Icon: Flag },
-  { name: "zap", Icon: Zap },
-  { name: "target", Icon: Target },
-  { name: "coffee", Icon: Coffee },
-  { name: "music", Icon: Music },
-  { name: "camera", Icon: Camera },
-  { name: "gift", Icon: Gift },
-  { name: "briefcase", Icon: Briefcase },
-  { name: "home", Icon: Home },
-  { name: "settings", Icon: Settings },
-  { name: "users", Icon: Users },
+const ICONS: { name: string; Icon: LucideIcon; label: string }[] = [
+  { name: "folder", Icon: Folder, label: "文件夹" },
+  { name: "file-text", Icon: FileText, label: "文档" },
+  { name: "star", Icon: Star, label: "星标" },
+  { name: "heart", Icon: Heart, label: "喜欢" },
+  { name: "bookmark", Icon: Bookmark, label: "书签" },
+  { name: "flag", Icon: Flag, label: "旗帜" },
+  { name: "zap", Icon: Zap, label: "闪电" },
+  { name: "target", Icon: Target, label: "目标" },
+  { name: "coffee", Icon: Coffee, label: "咖啡" },
+  { name: "music", Icon: Music, label: "音乐" },
+  { name: "camera", Icon: Camera, label: "相机" },
+  { name: "gift", Icon: Gift, label: "礼物" },
+  { name: "briefcase", Icon: Briefcase, label: "公文包" },
+  { name: "home", Icon: Home, label: "主页" },
+  { name: "settings", Icon: Settings, label: "设置" },
+  { name: "users", Icon: Users, label: "用户" },
 ];
 
 const TYPES = [
@@ -74,6 +80,12 @@ export default function NewItem() {
     }
   };
 
+  const getSelectedIcon = () => {
+    return ICONS.find((i) => i.name === selectedIcon) || ICONS[0];
+  };
+
+  const SelectedIconComponent = getSelectedIcon().Icon;
+
   return (
     <div className="h-full flex items-center justify-center bg-background p-8">
       <div className="w-full max-w-md space-y-6">
@@ -98,22 +110,39 @@ export default function NewItem() {
           {/* Icon Selector */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">图标</label>
-            <div className="grid grid-cols-8 gap-2">
-              {ICONS.map(({ name: iconName, Icon }) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <button
-                  key={iconName}
                   type="button"
-                  onClick={() => setSelectedIcon(iconName)}
-                  className={`p-2 rounded-md transition-colors ${
-                    selectedIcon === iconName
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-accent text-muted-foreground"
+                  className={`p-3 rounded-lg border transition-colors ${
+                    selectedIcon
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
+                  <SelectedIconComponent className="w-6 h-6 text-foreground" />
                 </button>
-              ))}
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="p-2">
+                <div className="grid grid-cols-8 gap-1">
+                  {ICONS.map(({ name: iconName, Icon, label }) => (
+                    <button
+                      key={iconName}
+                      type="button"
+                      onClick={() => setSelectedIcon(iconName)}
+                      title={label}
+                      className={`p-2 rounded-md transition-colors ${
+                        selectedIcon === iconName
+                          ? "bg-primary text-primary-foreground"
+                          : "hover:bg-accent text-muted-foreground"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </button>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Type Selector */}
