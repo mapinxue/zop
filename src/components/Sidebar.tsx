@@ -1,4 +1,28 @@
-import { Search, Plus, Folder, Layers } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { invoke } from "@tauri-apps/api/core";
+import {
+  Search,
+  Plus,
+  Folder,
+  Layers,
+  FileText,
+  Star,
+  Heart,
+  Bookmark,
+  Flag,
+  Zap,
+  Target,
+  Coffee,
+  Music,
+  Camera,
+  Gift,
+  Briefcase,
+  Home,
+  Settings,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,21 +38,63 @@ import {
 } from "@/components/ui/sidebar";
 import UserInfo from "./UserInfo";
 
-interface Project {
-  id: string;
+interface SopItem {
+  id: number;
   name: string;
+  icon: string;
+  item_type: string;
+  created_at: string;
+  updated_at: string;
 }
 
-// Mock 项目数据
-const mockProjects: Project[] = [
-  { id: "1", name: "个人项目" },
-  { id: "2", name: "工作项目" },
-  { id: "3", name: "学习笔记" },
-  { id: "4", name: "待办事项" },
-  { id: "5", name: "代码片段" },
-];
+const ICON_MAP: Record<string, LucideIcon> = {
+  folder: Folder,
+  "file-text": FileText,
+  star: Star,
+  heart: Heart,
+  bookmark: Bookmark,
+  flag: Flag,
+  zap: Zap,
+  target: Target,
+  coffee: Coffee,
+  music: Music,
+  camera: Camera,
+  gift: Gift,
+  briefcase: Briefcase,
+  home: Home,
+  settings: Settings,
+  users: Users,
+};
 
 export default function AppSidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [items, setItems] = useState<SopItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchItems = async () => {
+    try {
+      const result = await invoke<SopItem[]>("get_all_sop_items");
+      setItems(result);
+    } catch (error) {
+      console.error("Failed to fetch items:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, [location.pathname]);
+
+  const handleCreateNew = () => {
+    navigate("/new");
+  };
+
+  const getIcon = (iconName: string): LucideIcon => {
+    return ICON_MAP[iconName] || Folder;
+  };
+
   return (
     <Sidebar collapsible="icon">
       {/* Header */}
@@ -53,7 +119,8 @@ export default function AppSidebar() {
               </button>
               <button
                 className="p-1.5 hover:bg-sidebar-accent rounded-md transition-colors"
-                title="添加项目"
+                title="新建事项"
+                onClick={handleCreateNew}
               >
                 <Plus className="w-4 h-4 text-muted-foreground" />
               </button>
@@ -65,17 +132,33 @@ export default function AppSidebar() {
       {/* Content */}
       <SidebarContent>
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel className="sr-only">项目列表</SidebarGroupLabel>
+          <SidebarGroupLabel className="sr-only">事项列表</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mockProjects.map((project) => (
-                <SidebarMenuItem key={project.id}>
-                  <SidebarMenuButton tooltip={project.name}>
-                    <Folder className="w-4 h-4" />
-                    <span>{project.name}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {isLoading ? (
+                <div className="px-2 py-4 text-sm text-muted-foreground">
+                  加载中...
+                </div>
+              ) : items.length === 0 ? (
+                <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                  暂无事项，点击 + 创建
+                </div>
+              ) : (
+                items.map((item) => {
+                  const Icon = getIcon(item.icon);
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        tooltip={item.name}
+                        onClick={() => navigate(`/item/${item.id}`)}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
