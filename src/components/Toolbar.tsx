@@ -1,14 +1,27 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { Minus, Square, X, Pin, PinOff } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
+const ROUTE_TITLES: Record<string, string> = {
+  "/": "首页",
+  "/new": "新建事项",
+  "/about": "关于",
+  "/settings": "设置",
+};
+
 export default function Toolbar() {
+  const location = useLocation();
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
 
   const appWindow = getCurrentWindow();
+
+  const getTitle = () => {
+    return ROUTE_TITLES[location.pathname] || "Zop";
+  };
 
   useEffect(() => {
     // 检查窗口是否最大化
@@ -51,9 +64,10 @@ export default function Toolbar() {
 
   return (
     <div className="flex items-center justify-between h-[3.5rem] bg-background border-b border-border select-none">
-      {/* Left: Sidebar Toggle */}
-      <div className="flex items-center h-full px-2">
+      {/* Left: Sidebar Toggle + Title */}
+      <div className="flex items-center h-full px-2 gap-2">
         <SidebarTrigger />
+        <span className="text-sm font-medium text-foreground">{getTitle()}</span>
       </div>
 
       {/* Center: Draggable Area */}
