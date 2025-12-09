@@ -11,14 +11,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Frontend (React + TypeScript + Vite)
 - **Entry point**: `src/main.tsx` - renders the React app
 - **Main component**: `src/App.tsx` - sets up routing with React Router and sidebar layout
-- **UI Framework**: Radix UI components with Tailwind CSS v4
+- **UI Framework**: Radix UI components (shadcn/ui style: "new-york") with Tailwind CSS v4
 - **Routing**: React Router v7 with routes for home, new items, todo/flow details, settings, and about
 - **Key libraries**:
   - `@xyflow/react` - Interactive flowchart editor
-  - `lucide-react` - Icon library
+  - `lucide-react` - Icon library (16 predefined icons for items)
   - `react-router-dom` - Client-side routing
-- **Path alias**: `@/` maps to `src/` directory
+- **Path aliases**:
+  - `@/` → `src/`
+  - `@/components` → `src/components`
+  - `@/lib` → `src/lib`
+  - `@/hooks` → `src/hooks`
 - **Port**: Frontend dev server runs on port 1420 (fixed port required by Tauri)
+- **UI Components**: Located in `src/components/ui/` (Button, Input, Dropdown, Sidebar, etc.)
 
 ### Backend (Rust + Tauri + SQLite)
 - **Entry point**: `src-tauri/src/main.rs` - calls the library's `run()` function
@@ -31,6 +36,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Data Model
 - **SopItem**: Main entity with fields: `id`, `name`, `icon`, `item_type` ("todo" or "flowchart"), `created_at`, `updated_at`
 - **Database table**: `sop_items` with automatic timestamps using chrono
+- **Icon system**: 16 predefined Lucide icons (folder, file-text, star, heart, bookmark, flag, zap, target, coffee, music, camera, gift, briefcase, home, settings, users) - stored as string names in database
 
 ### Tauri Commands
 All commands are defined in `src-tauri/src/lib.rs` and registered in the invoke handler:
@@ -75,6 +81,7 @@ cargo build --release # Build optimized release version
 - **`vite.config.ts`**: Vite configuration with Tailwind CSS v4 plugin and path alias (`@` → `src/`)
 - **`tsconfig.json`**: TypeScript strict mode enabled with path alias support
 - **`package.json`**: Frontend dependencies and npm scripts
+- **`components.json`**: shadcn/ui configuration (style: "new-york", base color: neutral)
 
 ## Communication Pattern
 

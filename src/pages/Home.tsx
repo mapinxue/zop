@@ -1,80 +1,77 @@
-import { useCallback } from "react";
-import {
-  ReactFlow,
-  MiniMap,
-  Controls,
-  Background,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  type Node,
-  type Edge,
-  type OnConnect,
-  BackgroundVariant,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { invoke } from "@tauri-apps/api/core";
+import { Plus, Layers } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    type: "input",
-    data: { label: "开始" },
-    position: { x: 250, y: 0 },
-  },
-  {
-    id: "2",
-    data: { label: "处理数据" },
-    position: { x: 100, y: 100 },
-  },
-  {
-    id: "3",
-    data: { label: "验证结果" },
-    position: { x: 400, y: 100 },
-  },
-  {
-    id: "4",
-    data: { label: "保存到数据库" },
-    position: { x: 250, y: 200 },
-  },
-  {
-    id: "5",
-    type: "output",
-    data: { label: "完成" },
-    position: { x: 250, y: 300 },
-  },
-];
-
-const initialEdges: Edge[] = [
-  { id: "e1-2", source: "1", target: "2", animated: true },
-  { id: "e1-3", source: "1", target: "3", animated: true },
-  { id: "e2-4", source: "2", target: "4" },
-  { id: "e3-4", source: "3", target: "4" },
-  { id: "e4-5", source: "4", target: "5" },
-];
+interface SopItem {
+  id: number;
+  name: string;
+  icon: string;
+  item_type: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function Home() {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const navigate = useNavigate();
+  const [items, setItems] = useState<SopItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const onConnect: OnConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const result = await invoke<SopItem[]>("get_all_sop_items");
+        setItems(result);
+      } catch (error) {
+        console.error("Failed to fetch items:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, []);
+
+  const handleCreateNew = () => {
+    navigate("/new");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <div className="text-muted-foreground">加载中...</div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6 max-w-md text-center px-4 relative bottom-10">
+          <div className="flex items-center justify-center w-20 h-20 rounded-full bg-muted">
+            <Layers className="w-10 h-10 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold">欢迎使用 Zop</h2>
+            <p className="text-muted-foreground">
+              还没有任何事项，创建你的第一个待办或流程图吧
+            </p>
+          </div>
+          <Button onClick={handleCreateNew} size="lg">
+            <Plus className="w-5 h-5" />
+            新建事项
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full w-full">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-      >
-        <Controls />
-        <MiniMap />
-        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
-      </ReactFlow>
+    <div className="h-full w-full flex items-center justify-center">
+      <div className="text-muted-foreground">
+        请从左侧选择一个事项查看
+      </div>
     </div>
   );
 }
