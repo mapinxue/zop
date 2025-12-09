@@ -1,5 +1,6 @@
-import { ChevronsUpDown, CloudCheck, CloudOff, LogOut, User } from "lucide-react";
+import { ChevronsUpDown, CloudCheck, CloudOff, LogOut, User, Languages, Check } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -22,12 +26,17 @@ export default function UserInfo({
   email = "zhangsan@example.com",
   avatar,
 }: UserInfoProps) {
+  const { t, i18n } = useTranslation();
   const { state } = useSidebar();
   const [syncStatus] = useState<"synced" | "offline">("synced");
 
   const handleLogout = () => {
     console.log("退出登录");
     // TODO: 实现退出登录逻辑
+  };
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
   };
 
   return (
@@ -99,12 +108,12 @@ export default function UserInfo({
             {syncStatus === "synced" ? (
               <>
                 <CloudCheck className="size-4 text-green-500" />
-                <span className="text-sm">已同步</span>
+                <span className="text-sm">{t('userInfo.synced')}</span>
               </>
             ) : (
               <>
                 <CloudOff className="size-4 text-muted-foreground" />
-                <span className="text-sm">未同步</span>
+                <span className="text-sm">{t('userInfo.offline')}</span>
               </>
             )}
           </div>
@@ -112,10 +121,30 @@ export default function UserInfo({
 
         <DropdownMenuSeparator />
 
+        {/* Language Selector */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Languages className="size-4" />
+            <span>{t('userInfo.language')}</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem onClick={() => changeLanguage('zh')}>
+              <Check className={`size-4 ${i18n.language === 'zh' ? 'opacity-100' : 'opacity-0'}`} />
+              <span>{t('userInfo.chinese')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => changeLanguage('en')}>
+              <Check className={`size-4 ${i18n.language === 'en' ? 'opacity-100' : 'opacity-0'}`} />
+              <span>{t('userInfo.english')}</span>
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+
+        <DropdownMenuSeparator />
+
         {/* Logout */}
         <DropdownMenuItem onClick={handleLogout} variant="destructive">
           <LogOut className="size-4" />
-          <span>退出登录</span>
+          <span>{t('userInfo.logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

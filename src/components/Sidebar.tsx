@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import {
   Search,
@@ -67,6 +68,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 export default function AppSidebar() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [items, setItems] = useState<SopItem[]>([]);
@@ -108,18 +110,18 @@ export default function AppSidebar() {
           {/* Title and Actions - 只在展开状态显示 */}
           <div className="flex items-center justify-between flex-1 group-data-[collapsible=icon]:hidden">
             <h2 className="text-sm font-semibold text-sidebar-foreground">
-              Zop
+              {t('app.name')}
             </h2>
             <div className="flex items-center gap-1">
               <button
                 className="p-1.5 hover:bg-sidebar-accent rounded-md transition-colors"
-                title="搜索项目"
+                title={t('sidebar.searchProject')}
               >
                 <Search className="w-4 h-4 text-muted-foreground" />
               </button>
               <button
                 className="p-1.5 hover:bg-sidebar-accent rounded-md transition-colors"
-                title="新建事项"
+                title={t('common.newItem')}
                 onClick={handleCreateNew}
               >
                 <Plus className="w-4 h-4 text-muted-foreground" />
@@ -132,16 +134,16 @@ export default function AppSidebar() {
       {/* Content */}
       <SidebarContent>
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel className="sr-only">事项列表</SidebarGroupLabel>
+          <SidebarGroupLabel className="sr-only">{t('sidebar.itemList')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {isLoading ? (
                 <div className="px-2 py-4 text-sm text-muted-foreground">
-                  加载中...
+                  {t('common.loading')}
                 </div>
               ) : items.length === 0 ? (
                 <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-                  暂无事项，点击 + 创建
+                  {t('sidebar.emptyMessage')}
                 </div>
               ) : (
                 items.map((item) => {

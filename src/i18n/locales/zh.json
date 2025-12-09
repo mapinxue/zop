@@ -1,0 +1,130 @@
+{
+  "app": {
+    "name": "Zop"
+  },
+  "common": {
+    "loading": "加载中...",
+    "cancel": "取消",
+    "create": "创建",
+    "creating": "创建中...",
+    "delete": "删除",
+    "search": "搜索",
+    "newItem": "新建事项",
+    "add": "添加",
+    "enabled": "已开启",
+    "disabled": "已关闭"
+  },
+  "home": {
+    "welcome": "欢迎使用 Zop",
+    "emptyMessage": "还没有任何事项，创建你的第一个待办或流程图吧",
+    "selectItem": "请从左侧选择一个事项查看"
+  },
+  "sidebar": {
+    "searchProject": "搜索项目",
+    "emptyMessage": "暂无事项，点击 + 创建",
+    "itemList": "事项列表"
+  },
+  "newItem": {
+    "icon": "图标",
+    "name": "名称",
+    "namePlaceholder": "输入事项名称",
+    "type": "类型",
+    "todoType": "普通待办",
+    "todoDescription": "简单的待办事项清单",
+    "flowchartType": "流程图",
+    "flowchartDescription": "可视化的流程图编辑"
+  },
+  "todoDetail": {
+    "title": "待办详情",
+    "emptyTitle": "暂无任务项",
+    "emptyMessage": "点击下方按钮创建第一个任务项",
+    "newTask": "新建任务项",
+    "addTask": "添加任务项",
+    "taskPlaceholder": "输入任务内容..."
+  },
+  "flowDetail": {
+    "title": "流程图",
+    "subtitle": "流程图详情页"
+  },
+  "about": {
+    "title": "关于",
+    "techStack": "技术栈",
+    "projectInfo": "项目信息",
+    "version": "版本",
+    "type": "类型",
+    "desktopApp": "桌面应用",
+    "frontend": "前端",
+    "backend": "后端",
+    "tauri": {
+      "name": "Tauri",
+      "description": "使用 Rust 构建的桌面应用框架"
+    },
+    "react": {
+      "name": "React",
+      "description": "用于构建用户界面的 JavaScript 库"
+    },
+    "vite": {
+      "name": "Vite",
+      "description": "下一代前端构建工具"
+    }
+  },
+  "settings": {
+    "title": "设置",
+    "window": {
+      "title": "窗口设置",
+      "alwaysOnTop": "窗口置顶",
+      "alwaysOnTopDesc": "让窗口始终显示在其他窗口上方"
+    },
+    "appearance": {
+      "title": "外观设置",
+      "theme": "主题",
+      "themeDesc": "选择应用的显示主题",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "aboutSettings": {
+      "title": "关于设置",
+      "description": "这是一个设置页面示例，展示了如何与 Tauri 后端交互以及管理应用配置。你可以添加更多设置选项来定制你的应用。"
+    }
+  },
+  "icons": {
+    "folder": "文件夹",
+    "document": "文档",
+    "star": "星标",
+    "heart": "喜欢",
+    "bookmark": "书签",
+    "flag": "旗帜",
+    "zap": "闪电",
+    "target": "目标",
+    "coffee": "咖啡",
+    "music": "音乐",
+    "camera": "相机",
+    "gift": "礼物",
+    "briefcase": "公文包",
+    "home": "主页",
+    "settings": "设置",
+    "users": "用户"
+  },
+  "userInfo": {
+    "synced": "已同步",
+    "offline": "未同步",
+    "logout": "退出登录",
+    "language": "语言",
+    "chinese": "中文",
+    "english": "English"
+  },
+  "toolbar": {
+    "home": "首页",
+    "newItem": "新建事项",
+    "about": "关于",
+    "settings": "设置",
+    "todoDetail": "待办详情",
+    "flowDetail": "流程图详情",
+    "pin": "窗口置顶",
+    "unpin": "取消置顶",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "还原",
+    "close": "关闭"
+  }
+}

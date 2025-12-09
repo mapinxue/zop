@@ -1,18 +1,13 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { Minus, Square, X, Pin, PinOff } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-const ROUTE_TITLES: Record<string, string> = {
-  "/": "首页",
-  "/new": "新建事项",
-  "/about": "关于",
-  "/settings": "设置",
-};
-
 export default function Toolbar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -20,7 +15,19 @@ export default function Toolbar() {
   const appWindow = getCurrentWindow();
 
   const getTitle = () => {
-    return ROUTE_TITLES[location.pathname] || "";
+    const path = location.pathname;
+
+    // Handle static routes
+    if (path === "/") return t('toolbar.home');
+    if (path === "/new") return t('toolbar.newItem');
+    if (path === "/about") return t('toolbar.about');
+    if (path === "/settings") return t('toolbar.settings');
+
+    // Handle dynamic routes
+    if (path.startsWith("/todo/")) return t('toolbar.todoDetail');
+    if (path.startsWith("/flow/")) return t('toolbar.flowDetail');
+
+    return "";
   };
 
   useEffect(() => {
@@ -82,7 +89,7 @@ export default function Toolbar() {
         <button
           onClick={handleToggleAlwaysOnTop}
           className="h-full px-3 hover:bg-accent transition-colors flex items-center justify-center"
-          title={isAlwaysOnTop ? "取消置顶" : "窗口置顶"}
+          title={isAlwaysOnTop ? t('toolbar.unpin') : t('toolbar.pin')}
         >
           {isAlwaysOnTop ? (
             <Pin className="w-4 h-4 text-primary" />
@@ -95,7 +102,7 @@ export default function Toolbar() {
         <button
           onClick={handleMinimize}
           className="h-full px-3 hover:bg-accent transition-colors flex items-center justify-center"
-          title="最小化"
+          title={t('toolbar.minimize')}
         >
           <Minus className="w-4 h-4 text-foreground" />
         </button>
@@ -104,7 +111,7 @@ export default function Toolbar() {
         <button
           onClick={handleMaximize}
           className="h-full px-3 hover:bg-accent transition-colors flex items-center justify-center"
-          title={isMaximized ? "还原" : "最大化"}
+          title={isMaximized ? t('toolbar.restore') : t('toolbar.maximize')}
         >
           <Square className="w-3.5 h-3.5 text-foreground" />
         </button>
@@ -113,7 +120,7 @@ export default function Toolbar() {
         <button
           onClick={handleClose}
           className="h-full px-3 hover:bg-destructive hover:text-white transition-colors flex items-center justify-center"
-          title="关闭"
+          title={t('toolbar.close')}
         >
           <X className="w-4 h-4" />
         </button>

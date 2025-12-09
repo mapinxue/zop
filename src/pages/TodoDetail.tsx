@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { Plus, ListTodo, Square, CheckSquare, Trash2, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -112,6 +113,7 @@ function SortableTodoItem({ item, onToggle, onDelete }: SortableTodoItemProps) {
 }
 
 export default function TodoDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const sopId = Number(id);
 
@@ -234,7 +236,7 @@ export default function TodoDetail() {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center bg-background">
-        <p className="text-muted-foreground">加载中...</p>
+        <p className="text-muted-foreground">{t('common.loading')}</p>
       </div>
     );
   }
@@ -246,7 +248,7 @@ export default function TodoDetail() {
         <div className="p-4 border-b border-border">
           <Input
             type="text"
-            placeholder="输入任务内容..."
+            placeholder={t('todoDetail.taskPlaceholder')}
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -255,10 +257,10 @@ export default function TodoDetail() {
           />
           <div className="flex justify-end gap-2 mt-3">
             <Button variant="outline" size="sm" onClick={handleCancel}>
-              取消
+              {t('common.cancel')}
             </Button>
             <Button size="sm" onClick={handleAdd} disabled={!newContent.trim()}>
-              添加任务项
+              {t('todoDetail.addTask')}
             </Button>
           </div>
         </div>
@@ -274,14 +276,14 @@ export default function TodoDetail() {
               </div>
             </div>
             <div className="space-y-2">
-              <h2 className="text-lg font-medium text-foreground">暂无任务项</h2>
+              <h2 className="text-lg font-medium text-foreground">{t('todoDetail.emptyTitle')}</h2>
               <p className="text-sm text-muted-foreground">
-                点击下方按钮创建第一个任务项
+                {t('todoDetail.emptyMessage')}
               </p>
             </div>
             <Button onClick={() => setIsAdding(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              新建任务项
+              {t('todoDetail.newTask')}
             </Button>
           </div>
         </div>
@@ -301,7 +303,7 @@ export default function TodoDetail() {
                 onClick={() => setIsAdding(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                新建任务项
+                {t('todoDetail.newTask')}
               </Button>
             </div>
           )}

@@ -1,0 +1,130 @@
+{
+  "app": {
+    "name": "Zop"
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "create": "Create",
+    "creating": "Creating...",
+    "delete": "Delete",
+    "search": "Search",
+    "newItem": "New Item",
+    "add": "Add",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "home": {
+    "welcome": "Welcome to Zop",
+    "emptyMessage": "No items yet, create your first todo or flowchart",
+    "selectItem": "Please select an item from the sidebar"
+  },
+  "sidebar": {
+    "searchProject": "Search project",
+    "emptyMessage": "No items, click + to create",
+    "itemList": "Item List"
+  },
+  "newItem": {
+    "icon": "Icon",
+    "name": "Name",
+    "namePlaceholder": "Enter item name",
+    "type": "Type",
+    "todoType": "Todo",
+    "todoDescription": "Simple todo list",
+    "flowchartType": "Flowchart",
+    "flowchartDescription": "Visual flowchart editor"
+  },
+  "todoDetail": {
+    "title": "Todo Details",
+    "emptyTitle": "No tasks yet",
+    "emptyMessage": "Click the button below to create your first task",
+    "newTask": "New Task",
+    "addTask": "Add Task",
+    "taskPlaceholder": "Enter task content..."
+  },
+  "flowDetail": {
+    "title": "Flowchart",
+    "subtitle": "Flowchart Details"
+  },
+  "about": {
+    "title": "About",
+    "techStack": "Tech Stack",
+    "projectInfo": "Project Info",
+    "version": "Version",
+    "type": "Type",
+    "desktopApp": "Desktop App",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "tauri": {
+      "name": "Tauri",
+      "description": "Desktop app framework built with Rust"
+    },
+    "react": {
+      "name": "React",
+      "description": "JavaScript library for building user interfaces"
+    },
+    "vite": {
+      "name": "Vite",
+      "description": "Next generation frontend build tool"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "window": {
+      "title": "Window Settings",
+      "alwaysOnTop": "Always on Top",
+      "alwaysOnTopDesc": "Keep window above other windows"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme",
+      "themeDesc": "Choose the app display theme",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "aboutSettings": {
+      "title": "About Settings",
+      "description": "This is a sample settings page that demonstrates how to interact with the Tauri backend and manage app configuration. You can add more settings options to customize your app."
+    }
+  },
+  "icons": {
+    "folder": "Folder",
+    "document": "Document",
+    "star": "Star",
+    "heart": "Heart",
+    "bookmark": "Bookmark",
+    "flag": "Flag",
+    "zap": "Zap",
+    "target": "Target",
+    "coffee": "Coffee",
+    "music": "Music",
+    "camera": "Camera",
+    "gift": "Gift",
+    "briefcase": "Briefcase",
+    "home": "Home",
+    "settings": "Settings",
+    "users": "Users"
+  },
+  "userInfo": {
+    "synced": "Synced",
+    "offline": "Offline",
+    "logout": "Logout",
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English"
+  },
+  "toolbar": {
+    "home": "Home",
+    "newItem": "New Item",
+    "about": "About",
+    "settings": "Settings",
+    "todoDetail": "Todo Details",
+    "flowDetail": "Flowchart Details",
+    "pin": "Pin Window",
+    "unpin": "Unpin Window",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "restore": "Restore",
+    "close": "Close"
+  }
+}

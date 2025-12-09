@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import {
   Folder,
@@ -29,31 +30,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const ICONS: { name: string; Icon: LucideIcon; label: string }[] = [
-  { name: "folder", Icon: Folder, label: "文件夹" },
-  { name: "file-text", Icon: FileText, label: "文档" },
-  { name: "star", Icon: Star, label: "星标" },
-  { name: "heart", Icon: Heart, label: "喜欢" },
-  { name: "bookmark", Icon: Bookmark, label: "书签" },
-  { name: "flag", Icon: Flag, label: "旗帜" },
-  { name: "zap", Icon: Zap, label: "闪电" },
-  { name: "target", Icon: Target, label: "目标" },
-  { name: "coffee", Icon: Coffee, label: "咖啡" },
-  { name: "music", Icon: Music, label: "音乐" },
-  { name: "camera", Icon: Camera, label: "相机" },
-  { name: "gift", Icon: Gift, label: "礼物" },
-  { name: "briefcase", Icon: Briefcase, label: "公文包" },
-  { name: "home", Icon: Home, label: "主页" },
-  { name: "settings", Icon: Settings, label: "设置" },
-  { name: "users", Icon: Users, label: "用户" },
-];
-
-const TYPES = [
-  { value: "todo", label: "普通待办", description: "简单的待办事项清单" },
-  { value: "flowchart", label: "流程图", description: "可视化的流程图编辑" },
+const ICONS: { name: string; Icon: LucideIcon }[] = [
+  { name: "folder", Icon: Folder },
+  { name: "file-text", Icon: FileText },
+  { name: "star", Icon: Star },
+  { name: "heart", Icon: Heart },
+  { name: "bookmark", Icon: Bookmark },
+  { name: "flag", Icon: Flag },
+  { name: "zap", Icon: Zap },
+  { name: "target", Icon: Target },
+  { name: "coffee", Icon: Coffee },
+  { name: "music", Icon: Music },
+  { name: "camera", Icon: Camera },
+  { name: "gift", Icon: Gift },
+  { name: "briefcase", Icon: Briefcase },
+  { name: "home", Icon: Home },
+  { name: "settings", Icon: Settings },
+  { name: "users", Icon: Users },
 ];
 
 export default function NewItem() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("folder");
@@ -87,6 +84,11 @@ export default function NewItem() {
 
   const SelectedIconComponent = getSelectedIcon().Icon;
 
+  const TYPES = [
+    { value: "todo", label: t('newItem.todoType'), description: t('newItem.todoDescription') },
+    { value: "flowchart", label: t('newItem.flowchartType'), description: t('newItem.flowchartDescription') },
+  ];
+
   return (
     <div className="h-full bg-background pt-6 pl-8 pr-8">
       <div className="w-full max-w-xl">
@@ -95,7 +97,7 @@ export default function NewItem() {
           <div className="flex items-end gap-4">
             {/* Icon Selector */}
             <div className="space-y-1">
-              <label className="text-sm font-medium text-foreground">图标</label>
+              <label className="text-sm font-medium text-foreground">{t('newItem.icon')}</label>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
@@ -108,12 +110,12 @@ export default function NewItem() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="p-2">
                   <div className="grid grid-cols-8 gap-1">
-                    {ICONS.map(({ name: iconName, Icon, label }) => (
+                    {ICONS.map(({ name: iconName, Icon }) => (
                       <button
                         key={iconName}
                         type="button"
                         onClick={() => setSelectedIcon(iconName)}
-                        title={label}
+                        title={t(`icons.${iconName === 'file-text' ? 'document' : iconName}`)}
                         className={`p-2 rounded-md transition-colors ${
                           selectedIcon === iconName
                             ? "bg-primary text-primary-foreground"
@@ -133,10 +135,10 @@ export default function NewItem() {
 
             {/* Name Input */}
             <div className="flex-1 space-y-1">
-              <label className="text-sm font-medium text-foreground">名称</label>
+              <label className="text-sm font-medium text-foreground">{t('newItem.name')}</label>
               <Input
                 type="text"
-                placeholder="输入事项名称"
+                placeholder={t('newItem.namePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full"
@@ -146,7 +148,7 @@ export default function NewItem() {
 
           {/* Type Selector */}
           <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground">类型</label>
+            <label className="text-sm font-medium text-foreground">{t('newItem.type')}</label>
             <div className="grid grid-cols-2 gap-3">
               {TYPES.map((type) => (
                 <button
@@ -175,13 +177,13 @@ export default function NewItem() {
               variant="outline"
               onClick={() => navigate("/")}
             >
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={!name.trim() || isSubmitting}
             >
-              {isSubmitting ? "创建中..." : "创建"}
+              {isSubmitting ? t('common.creating') : t('common.create')}
             </Button>
           </div>
         </form>

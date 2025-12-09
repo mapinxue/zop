@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 
 export default function Settings() {
+  const { t } = useTranslation();
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -16,14 +18,14 @@ export default function Settings() {
 
   return (
     <div className="h-full overflow-y-auto p-6 space-y-6 bg-background">
-      <h1 className="text-2xl font-bold text-foreground">设置</h1>
+      <h1 className="text-2xl font-bold text-foreground">{t('settings.title')}</h1>
 
       <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4">窗口设置</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.window.title')}</h2>
         <div className="flex items-center justify-between py-3 border-b border-border">
           <div>
-            <h3 className="font-medium text-foreground">窗口置顶</h3>
-            <p className="text-sm text-muted-foreground">让窗口始终显示在其他窗口上方</p>
+            <h3 className="font-medium text-foreground">{t('settings.window.alwaysOnTop')}</h3>
+            <p className="text-sm text-muted-foreground">{t('settings.window.alwaysOnTopDesc')}</p>
           </div>
           <button
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -33,34 +35,33 @@ export default function Settings() {
             }`}
             onClick={toggleAlwaysOnTop}
           >
-            {isAlwaysOnTop ? "已开启" : "已关闭"}
+            {isAlwaysOnTop ? t('common.enabled') : t('common.disabled')}
           </button>
         </div>
       </div>
 
       <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4">外观设置</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.appearance.title')}</h2>
         <div className="flex items-center justify-between py-3">
           <div>
-            <h3 className="font-medium text-foreground">主题</h3>
-            <p className="text-sm text-muted-foreground">选择应用的显示主题</p>
+            <h3 className="font-medium text-foreground">{t('settings.appearance.theme')}</h3>
+            <p className="text-sm text-muted-foreground">{t('settings.appearance.themeDesc')}</p>
           </div>
           <select
             value={theme}
             onChange={(e) => setTheme(e.target.value as "light" | "dark")}
             className="px-4 py-2 rounded-md bg-muted text-foreground border border-border focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <option value="light">浅色</option>
-            <option value="dark">深色</option>
+            <option value="light">{t('settings.appearance.light')}</option>
+            <option value="dark">{t('settings.appearance.dark')}</option>
           </select>
         </div>
       </div>
 
       <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4">关于设置</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.aboutSettings.title')}</h2>
         <p className="text-muted-foreground">
-          这是一个设置页面示例，展示了如何与 Tauri 后端交互以及管理应用配置。
-          你可以添加更多设置选项来定制你的应用。
+          {t('settings.aboutSettings.description')}
         </p>
       </div>
     </div>

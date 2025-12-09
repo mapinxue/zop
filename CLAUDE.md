@@ -97,3 +97,39 @@ Frontend-backend communication uses Tauri's command system:
 1. **Development**: `npm run tauri dev` runs both frontend dev server and Rust backend
 2. **Production**: `npm run tauri build` first builds frontend (`npm run build`), then compiles the complete desktop application
 3. **Frontend dist**: Vite builds to `dist/` directory, which Tauri bundles into the final app
+
+## Internationalization (i18n)
+
+The project uses **i18next** with **react-i18next** for internationalization support.
+
+### Configuration
+- **i18n setup**: `src/i18n/index.ts` - initializes i18next with language detection
+- **Translation files**:
+  - `src/i18n/locales/zh.json` - Chinese translations
+  - `src/i18n/locales/en.json` - English translations
+- **Language detection**: Automatically detects browser language, falls back to English
+- **Supported languages**: Chinese (zh) and English (en)
+
+### Usage in Components
+```tsx
+import { useTranslation } from 'react-i18next';
+
+function MyComponent() {
+  const { t } = useTranslation();
+  return <div>{t('common.loading')}</div>;
+}
+```
+
+### Important Rules
+**CRITICAL**: When modifying or creating frontend code:
+1. **NEVER use hardcoded text strings** in JSX or UI components
+2. **ALWAYS use `t()` function** from `useTranslation()` hook for all user-facing text
+3. **Add translations to BOTH** `zh.json` and `en.json` files when adding new text
+4. **Use nested keys** for organization (e.g., `common.loading`, `home.welcome`, `settings.window.title`)
+5. **Keep translation keys descriptive** and follow existing naming patterns
+
+### Translation File Structure
+- `app.*` - Application-level text (app name, etc.)
+- `common.*` - Shared text across components (buttons, actions, states)
+- `[page].*` - Page-specific text (home, sidebar, newItem, todoDetail, flowDetail, about, settings)
+- `icons.*` - Icon labels and tooltips

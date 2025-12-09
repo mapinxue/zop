@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
 import { Plus, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface SopItem {
 }
 
 export default function Home() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [items, setItems] = useState<SopItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +42,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <div className="text-muted-foreground">加载中...</div>
+        <div className="text-muted-foreground">{t('common.loading')}</div>
       </div>
     );
   }
@@ -53,14 +55,14 @@ export default function Home() {
             <Layers className="w-10 h-10 text-muted-foreground" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold">欢迎使用 Zop</h2>
+            <h2 className="text-2xl font-semibold">{t('home.welcome')}</h2>
             <p className="text-muted-foreground">
-              还没有任何事项，创建你的第一个待办或流程图吧
+              {t('home.emptyMessage')}
             </p>
           </div>
           <Button onClick={handleCreateNew} size="lg">
             <Plus className="w-5 h-5" />
-            新建事项
+            {t('common.newItem')}
           </Button>
         </div>
       </div>
@@ -70,7 +72,7 @@ export default function Home() {
   return (
     <div className="h-full w-full flex items-center justify-center">
       <div className="text-muted-foreground">
-        请从左侧选择一个事项查看
+        {t('home.selectItem')}
       </div>
     </div>
   );
