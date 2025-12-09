@@ -27,6 +27,23 @@ pub struct CreateSopItem {
     pub item_type: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TodoItem {
+    pub id: i64,
+    pub sop_id: i64,
+    pub content: String,
+    pub completed: bool,
+    pub sort_order: i64,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateTodoItem {
+    pub sop_id: i64,
+    pub content: String,
+}
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -61,6 +78,36 @@ fn delete_sop_item(state: tauri::State<AppState>, id: i64) -> Result<(), String>
     db.delete_sop_item(id).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn create_todo_item(state: tauri::State<AppState>, item: CreateTodoItem) -> Result<TodoItem, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.create_todo_item(&item).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_todo_items(state: tauri::State<AppState>, sop_id: i64) -> Result<Vec<TodoItem>, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.get_todo_items(sop_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn toggle_todo_item(state: tauri::State<AppState>, id: i64) -> Result<TodoItem, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.toggle_todo_item(id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn delete_todo_item(state: tauri::State<AppState>, id: i64) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.delete_todo_item(id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn reorder_todo_items(state: tauri::State<AppState>, item_ids: Vec<i64>) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.reorder_todo_items(&item_ids).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db = Database::new().expect("Failed to initialize database");
@@ -73,7 +120,12 @@ pub fn run() {
             toggle_always_on_top,
             create_sop_item,
             get_all_sop_items,
-            delete_sop_item
+            delete_sop_item,
+            create_todo_item,
+            get_todo_items,
+            toggle_todo_item,
+            delete_todo_item,
+            reorder_todo_items
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

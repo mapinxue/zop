@@ -20,7 +20,7 @@ export default function Toolbar() {
   const appWindow = getCurrentWindow();
 
   const getTitle = () => {
-    return ROUTE_TITLES[location.pathname] || "Zop";
+    return ROUTE_TITLES[location.pathname] || "";
   };
 
   useEffect(() => {

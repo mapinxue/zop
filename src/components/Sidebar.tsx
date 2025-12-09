@@ -146,18 +146,20 @@ export default function AppSidebar() {
               ) : (
                 items.map((item) => {
                   const Icon = getIcon(item.icon);
+                  const itemPath =
+                    item.item_type === "todo"
+                      ? `/todo/${item.id}`
+                      : `/flow/${item.id}`;
+                  const isActive = location.pathname === itemPath;
                   const handleItemClick = () => {
-                    if (item.item_type === "todo") {
-                      navigate(`/todo/${item.id}`);
-                    } else if (item.item_type === "flowchart") {
-                      navigate(`/flow/${item.id}`);
-                    }
+                    navigate(itemPath);
                   };
                   return (
                     <SidebarMenuItem key={item.id}>
                       <SidebarMenuButton
                         tooltip={item.name}
                         onClick={handleItemClick}
+                        isActive={isActive}
                       >
                         <Icon className="w-4 h-4" />
                         <span>{item.name}</span>

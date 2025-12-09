@@ -23,7 +23,7 @@ export default function UserInfo({
   avatar,
 }: UserInfoProps) {
   const { state } = useSidebar();
-  const [syncStatus, setSyncStatus] = useState<"synced" | "offline">("synced");
+  const [syncStatus] = useState<"synced" | "offline">("synced");
 
   const handleLogout = () => {
     console.log("退出登录");

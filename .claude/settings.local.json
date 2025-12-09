@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm install react-router-dom)",
       "Bash(cargo check)",
-      "Bash(npm install @xyflow/react)"
+      "Bash(npm install @xyflow/react)",
+      "Bash(npm install @dnd-kit/sortable @dnd-kit/utilities)",
+      "Bash(npm run build)"
     ],
     "deny": [],
     "ask": []
