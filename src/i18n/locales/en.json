@@ -44,7 +44,11 @@
   },
   "flowDetail": {
     "title": "Flowchart",
-    "subtitle": "Flowchart Details"
+    "subtitle": "Flowchart Details",
+    "newNode": "New Node",
+    "addRectangle": "Add Rectangle",
+    "addCircle": "Add Circle",
+    "addDiamond": "Add Diamond"
   },
   "about": {
     "title": "About",

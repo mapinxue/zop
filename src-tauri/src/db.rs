@@ -2,7 +2,7 @@ use rusqlite::{Connection, Result as SqliteResult};
 use std::fs;
 use std::path::PathBuf;
 
-use crate::{CreateSopItem, CreateTodoItem, SopItem, TodoItem};
+use crate::{CreateSopItem, CreateTodoItem, FlowData, SopItem, TodoItem};
 
 pub struct Database {
     conn: Connection,
@@ -60,6 +60,19 @@ impl Database {
             "ALTER TABLE todo_items ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0",
             [],
         );
+
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS flow_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sop_id INTEGER NOT NULL UNIQUE,
+                nodes TEXT NOT NULL,
+                edges TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY (sop_id) REFERENCES sop_items(id) ON DELETE CASCADE
+            )",
+            [],
+        )?;
 
         Ok(())
     }
@@ -220,5 +233,49 @@ impl Database {
             )?;
         }
         Ok(())
+    }
+
+    pub fn get_flow_data(&self, sop_id: i64) -> SqliteResult<Option<FlowData>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, sop_id, nodes, edges, created_at, updated_at FROM flow_data WHERE sop_id = ?1"
+        )?;
+
+        let result = stmt.query_row([sop_id], |row| {
+            Ok(FlowData {
+                id: row.get(0)?,
+                sop_id: row.get(1)?,
+                nodes: row.get(2)?,
+                edges: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
+            })
+        });
+
+        match result {
+            Ok(data) => Ok(Some(data)),
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn save_flow_data(&self, sop_id: i64, nodes: &str, edges: &str) -> SqliteResult<FlowData> {
+        let now = chrono::Utc::now().to_rfc3339();
+
+        // Try to update existing record, or insert new one
+        let existing = self.get_flow_data(sop_id)?;
+
+        if existing.is_some() {
+            self.conn.execute(
+                "UPDATE flow_data SET nodes = ?1, edges = ?2, updated_at = ?3 WHERE sop_id = ?4",
+                (nodes, edges, &now, sop_id),
+            )?;
+        } else {
+            self.conn.execute(
+                "INSERT INTO flow_data (sop_id, nodes, edges, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+                (sop_id, nodes, edges, &now, &now),
+            )?;
+        }
+
+        self.get_flow_data(sop_id)?.ok_or(rusqlite::Error::QueryReturnedNoRows)
     }
 }

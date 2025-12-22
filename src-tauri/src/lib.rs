@@ -44,6 +44,16 @@ pub struct CreateTodoItem {
     pub content: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FlowData {
+    pub id: i64,
+    pub sop_id: i64,
+    pub nodes: String,
+    pub edges: String,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -114,6 +124,18 @@ fn reorder_todo_items(state: tauri::State<AppState>, item_ids: Vec<i64>) -> Resu
     db.reorder_todo_items(&item_ids).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn get_flow_data(state: tauri::State<AppState>, sop_id: i64) -> Result<Option<FlowData>, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.get_flow_data(sop_id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn save_flow_data(state: tauri::State<AppState>, sop_id: i64, nodes: String, edges: String) -> Result<FlowData, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.save_flow_data(sop_id, &nodes, &edges).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db = Database::new().expect("Failed to initialize database");
@@ -132,7 +154,9 @@ pub fn run() {
             toggle_todo_item,
             delete_todo_item,
             update_todo_item,
-            reorder_todo_items
+            reorder_todo_items,
+            get_flow_data,
+            save_flow_data
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -44,7 +44,11 @@
   },
   "flowDetail": {
     "title": "流程图",
-    "subtitle": "流程图详情页"
+    "subtitle": "流程图详情页",
+    "newNode": "新节点",
+    "addRectangle": "添加矩形",
+    "addCircle": "添加圆形",
+    "addDiamond": "添加菱形"
   },
   "about": {
     "title": "关于",
