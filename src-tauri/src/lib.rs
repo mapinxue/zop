@@ -103,6 +103,12 @@ fn delete_todo_item(state: tauri::State<AppState>, id: i64) -> Result<(), String
 }
 
 #[tauri::command]
+fn update_todo_item(state: tauri::State<AppState>, id: i64, content: String) -> Result<TodoItem, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.update_todo_item(id, &content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn reorder_todo_items(state: tauri::State<AppState>, item_ids: Vec<i64>) -> Result<(), String> {
     let db = state.db.lock().map_err(|e| e.to_string())?;
     db.reorder_todo_items(&item_ids).map_err(|e| e.to_string())
@@ -125,6 +131,7 @@ pub fn run() {
             get_todo_items,
             toggle_todo_item,
             delete_todo_item,
+            update_todo_item,
             reorder_todo_items
         ])
         .run(tauri::generate_context!())

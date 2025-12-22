@@ -187,6 +187,30 @@ impl Database {
         Ok(())
     }
 
+    pub fn update_todo_item(&self, id: i64, content: &str) -> SqliteResult<TodoItem> {
+        let now = chrono::Utc::now().to_rfc3339();
+        self.conn.execute(
+            "UPDATE todo_items SET content = ?1, updated_at = ?2 WHERE id = ?3",
+            (content, &now, &id),
+        )?;
+
+        let mut stmt = self.conn.prepare(
+            "SELECT id, sop_id, content, completed, sort_order, created_at, updated_at FROM todo_items WHERE id = ?1"
+        )?;
+
+        stmt.query_row([id], |row| {
+            Ok(TodoItem {
+                id: row.get(0)?,
+                sop_id: row.get(1)?,
+                content: row.get(2)?,
+                completed: row.get::<_, i32>(3)? != 0,
+                sort_order: row.get(4)?,
+                created_at: row.get(5)?,
+                updated_at: row.get(6)?,
+            })
+        })
+    }
+
     pub fn reorder_todo_items(&self, item_ids: &[i64]) -> SqliteResult<()> {
         let now = chrono::Utc::now().to_rfc3339();
         for (index, id) in item_ids.iter().enumerate() {

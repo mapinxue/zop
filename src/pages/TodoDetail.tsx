@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
-import { Plus, ListTodo, Square, CheckSquare, Trash2, GripVertical } from "lucide-react";
+import { Plus, ListTodo, Square, CheckSquare, Trash2, GripVertical, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,9 +46,13 @@ interface SortableTodoItemProps {
   item: TodoItem;
   onToggle: (id: number) => void;
   onDelete: (id: number) => void;
+  onUpdate: (id: number, content: string) => void;
 }
 
-function SortableTodoItem({ item, onToggle, onDelete }: SortableTodoItemProps) {
+function SortableTodoItem({ item, onToggle, onDelete, onUpdate }: SortableTodoItemProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(item.content);
+
   const {
     attributes,
     listeners,
@@ -62,6 +66,26 @@ function SortableTodoItem({ item, onToggle, onDelete }: SortableTodoItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleSave = () => {
+    if (editContent.trim() && editContent.trim() !== item.content) {
+      onUpdate(item.id, editContent.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditContent(item.content);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSave();
+    } else if (e.key === "Escape") {
+      handleCancel();
+    }
   };
 
   return (
@@ -92,21 +116,54 @@ function SortableTodoItem({ item, onToggle, onDelete }: SortableTodoItemProps) {
             <Square className="w-5 h-5" />
           )}
         </button>
-        <span
-          className={`flex-1 ${
-            item.completed
-              ? "line-through text-muted-foreground"
-              : "text-foreground"
-          }`}
-        >
-          {item.content}
-        </span>
-        <button
-          onClick={() => onDelete(item.id)}
-          className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        {isEditing ? (
+          <>
+            <Input
+              type="text"
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              className="flex-1 h-8"
+            />
+            <button
+              onClick={handleSave}
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCancel}
+              className="text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </>
+        ) : (
+          <>
+            <span
+              className={`flex-1 ${
+                item.completed
+                  ? "line-through text-muted-foreground"
+                  : "text-foreground"
+              }`}
+            >
+              {item.content}
+            </span>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-all"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onDelete(item.id)}
+              className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -203,6 +260,15 @@ export default function TodoDetail() {
     }
   };
 
+  const handleUpdate = async (itemId: number, content: string) => {
+    try {
+      const updatedItem = await invoke<TodoItem>("update_todo_item", { id: itemId, content });
+      setItems(items.map((item) => (item.id === itemId ? updatedItem : item)));
+    } catch (error) {
+      console.error("Failed to update todo item:", error);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleAdd();
@@ -242,7 +308,7 @@ export default function TodoDetail() {
   }
 
   return (
-    <div className="h-full bg-background">
+    <div className="h-full bg-background overflow-y-auto">
       {/* Add new item form */}
       {isAdding && (
         <div className="p-4 border-b border-border">
@@ -323,6 +389,7 @@ export default function TodoDetail() {
                     item={item}
                     onToggle={handleToggle}
                     onDelete={handleDelete}
+                    onUpdate={handleUpdate}
                   />
                 ))}
               </div>
