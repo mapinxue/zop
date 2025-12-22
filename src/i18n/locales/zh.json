@@ -45,10 +45,27 @@
   "flowDetail": {
     "title": "流程图",
     "subtitle": "流程图详情页",
-    "newNode": "新节点",
-    "addRectangle": "添加矩形",
-    "addCircle": "添加圆形",
-    "addDiamond": "添加菱形"
+    "startNode": "开始",
+    "readNode": "阅读节点",
+    "formNode": "表单节点",
+    "endNode": "结束",
+    "addNode": "添加节点",
+    "readNodeConfig": "阅读节点配置",
+    "formNodeConfig": "表单节点配置",
+    "nodeName": "节点名称"
+  },
+  "flowExecute": {
+    "step": "步骤",
+    "exit": "退出",
+    "previous": "上一步",
+    "next": "下一步",
+    "completed": "已完成！",
+    "completedMessage": "您已完成此流程的所有步骤。",
+    "emptyFlow": "此流程没有任何步骤",
+    "startHint": "点击下一步开始流程",
+    "readHint": "阅读上方内容，然后点击下一步",
+    "formHint": "填写表单，然后点击下一步",
+    "endHint": "您已到达流程的终点"
   },
   "about": {
     "title": "关于",

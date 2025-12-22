@@ -45,10 +45,27 @@
   "flowDetail": {
     "title": "Flowchart",
     "subtitle": "Flowchart Details",
-    "newNode": "New Node",
-    "addRectangle": "Add Rectangle",
-    "addCircle": "Add Circle",
-    "addDiamond": "Add Diamond"
+    "startNode": "Start",
+    "readNode": "Read Node",
+    "formNode": "Form Node",
+    "endNode": "End",
+    "addNode": "Add Node",
+    "readNodeConfig": "Read Node Config",
+    "formNodeConfig": "Form Node Config",
+    "nodeName": "Node Name"
+  },
+  "flowExecute": {
+    "step": "Step",
+    "exit": "Exit",
+    "previous": "Previous",
+    "next": "Next",
+    "completed": "Completed!",
+    "completedMessage": "You have completed all steps in this flow.",
+    "emptyFlow": "No steps in this flow",
+    "startHint": "Click Next to begin the flow",
+    "readHint": "Read the content above, then click Next",
+    "formHint": "Fill in the form, then click Next",
+    "endHint": "You have reached the end of the flow"
   },
   "about": {
     "title": "About",
