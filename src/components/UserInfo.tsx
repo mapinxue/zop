@@ -1,5 +1,4 @@
-import { ChevronsUpDown, CloudCheck, CloudOff, LogOut, User, Languages, Check } from "lucide-react";
-import { useState } from "react";
+import { ChevronsUpDown, CloudOff, LogOut, User, Languages, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
@@ -15,25 +14,12 @@ import {
 import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
 
-interface UserInfoProps {
-  name?: string;
-  email?: string;
-  avatar?: string;
-}
-
-export default function UserInfo({
-  name = "张三",
-  email = "zhangsan@example.com",
-  avatar,
-}: UserInfoProps) {
+export default function UserInfo() {
   const { t, i18n } = useTranslation();
   const { state } = useSidebar();
-  const [syncStatus] = useState<"synced" | "offline">("synced");
 
-  const handleLogout = () => {
-    console.log("退出登录");
-    // TODO: 实现退出登录逻辑
-  };
+  const name = "User";
+  const email = "user@zhiliang.com";
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -48,15 +34,7 @@ export default function UserInfo({
         >
           {/* Avatar */}
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-            {avatar ? (
-              <img
-                src={avatar}
-                alt={name}
-                className="size-8 rounded-lg object-cover"
-              />
-            ) : (
-              <User className="size-4" />
-            )}
+            <User className="size-4" />
           </div>
 
           {/* User Info - 只在展开状态显示 */}
@@ -81,15 +59,7 @@ export default function UserInfo({
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              {avatar ? (
-                <img
-                  src={avatar}
-                  alt={name}
-                  className="size-8 rounded-lg object-cover"
-                />
-              ) : (
-                <User className="size-4" />
-              )}
+              <User className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{name}</span>
@@ -102,26 +72,17 @@ export default function UserInfo({
 
         <DropdownMenuSeparator />
 
-        {/* Sync Status */}
-        <DropdownMenuItem className="cursor-default focus:bg-transparent">
+        {/* Sync Status - disabled */}
+        <DropdownMenuItem disabled className="cursor-not-allowed opacity-50">
           <div className="flex items-center gap-2 w-full">
-            {syncStatus === "synced" ? (
-              <>
-                <CloudCheck className="size-4 text-green-500" />
-                <span className="text-sm">{t('userInfo.synced')}</span>
-              </>
-            ) : (
-              <>
-                <CloudOff className="size-4 text-muted-foreground" />
-                <span className="text-sm">{t('userInfo.offline')}</span>
-              </>
-            )}
+            <CloudOff className="size-4 text-muted-foreground" />
+            <span className="text-sm">{t('userInfo.offline')}</span>
           </div>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
-        {/* Language Selector */}
+        {/* Language Selector - enabled */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Languages className="size-4" />
@@ -141,8 +102,8 @@ export default function UserInfo({
 
         <DropdownMenuSeparator />
 
-        {/* Logout */}
-        <DropdownMenuItem onClick={handleLogout} variant="destructive">
+        {/* Logout - disabled */}
+        <DropdownMenuItem disabled className="cursor-not-allowed opacity-50">
           <LogOut className="size-4" />
           <span>{t('userInfo.logout')}</span>
         </DropdownMenuItem>

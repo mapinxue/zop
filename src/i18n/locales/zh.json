@@ -22,7 +22,9 @@
   "sidebar": {
     "searchProject": "搜索项目",
     "emptyMessage": "暂无事项，点击 + 创建",
-    "itemList": "事项列表"
+    "itemList": "事项列表",
+    "rename": "重命名",
+    "delete": "删除"
   },
   "newItem": {
     "icon": "图标",

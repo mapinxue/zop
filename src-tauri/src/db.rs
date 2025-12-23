@@ -36,10 +36,17 @@ impl Database {
                 icon TEXT NOT NULL,
                 item_type TEXT NOT NULL,
                 created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
+                updated_at TEXT NOT NULL,
+                deleted_at TEXT
             )",
             [],
         )?;
+
+        // Add deleted_at column if not exists (for migration)
+        let _ = self.conn.execute(
+            "ALTER TABLE sop_items ADD COLUMN deleted_at TEXT",
+            [],
+        );
 
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS todo_items (
@@ -80,7 +87,7 @@ impl Database {
     pub fn create_sop_item(&self, item: &CreateSopItem) -> SqliteResult<SopItem> {
         let now = chrono::Utc::now().to_rfc3339();
         self.conn.execute(
-            "INSERT INTO sop_items (name, icon, item_type, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+            "INSERT INTO sop_items (name, icon, item_type, created_at, updated_at, deleted_at) VALUES (?1, ?2, ?3, ?4, ?5, NULL)",
             (&item.name, &item.icon, &item.item_type, &now, &now),
         )?;
 
@@ -92,13 +99,14 @@ impl Database {
             item_type: item.item_type.clone(),
             created_at: now.clone(),
             updated_at: now,
+            deleted_at: None,
         })
     }
 
     pub fn get_all_sop_items(&self) -> SqliteResult<Vec<SopItem>> {
         let mut stmt = self
             .conn
-            .prepare("SELECT id, name, icon, item_type, created_at, updated_at FROM sop_items ORDER BY created_at DESC")?;
+            .prepare("SELECT id, name, icon, item_type, created_at, updated_at, deleted_at FROM sop_items WHERE deleted_at IS NULL ORDER BY created_at DESC")?;
 
         let items = stmt.query_map([], |row| {
             Ok(SopItem {
@@ -108,10 +116,90 @@ impl Database {
                 item_type: row.get(3)?,
                 created_at: row.get(4)?,
                 updated_at: row.get(5)?,
+                deleted_at: row.get(6)?,
             })
         })?;
 
         items.collect()
+    }
+
+    pub fn soft_delete_sop_item(&self, id: i64) -> SqliteResult<()> {
+        let now = chrono::Utc::now().to_rfc3339();
+        self.conn
+            .execute("UPDATE sop_items SET deleted_at = ?1, updated_at = ?1 WHERE id = ?2", (&now, id))?;
+        Ok(())
+    }
+
+    pub fn rename_sop_item(&self, id: i64, name: &str) -> SqliteResult<SopItem> {
+        let now = chrono::Utc::now().to_rfc3339();
+        self.conn.execute(
+            "UPDATE sop_items SET name = ?1, updated_at = ?2 WHERE id = ?3",
+            (name, &now, id),
+        )?;
+
+        let mut stmt = self.conn.prepare(
+            "SELECT id, name, icon, item_type, created_at, updated_at, deleted_at FROM sop_items WHERE id = ?1"
+        )?;
+
+        stmt.query_row([id], |row| {
+            Ok(SopItem {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                icon: row.get(2)?,
+                item_type: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
+                deleted_at: row.get(6)?,
+            })
+        })
+    }
+
+    pub fn get_deleted_sop_items(&self) -> SqliteResult<Vec<SopItem>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, name, icon, item_type, created_at, updated_at, deleted_at FROM sop_items WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")?;
+
+        let items = stmt.query_map([], |row| {
+            Ok(SopItem {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                icon: row.get(2)?,
+                item_type: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
+                deleted_at: row.get(6)?,
+            })
+        })?;
+
+        items.collect()
+    }
+
+    pub fn restore_sop_item(&self, id: i64) -> SqliteResult<SopItem> {
+        let now = chrono::Utc::now().to_rfc3339();
+        self.conn
+            .execute("UPDATE sop_items SET deleted_at = NULL, updated_at = ?1 WHERE id = ?2", (&now, id))?;
+
+        let mut stmt = self.conn.prepare(
+            "SELECT id, name, icon, item_type, created_at, updated_at, deleted_at FROM sop_items WHERE id = ?1"
+        )?;
+
+        stmt.query_row([id], |row| {
+            Ok(SopItem {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                icon: row.get(2)?,
+                item_type: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
+                deleted_at: row.get(6)?,
+            })
+        })
+    }
+
+    pub fn permanently_delete_sop_item(&self, id: i64) -> SqliteResult<()> {
+        self.conn
+            .execute("DELETE FROM sop_items WHERE id = ?1", [id])?;
+        Ok(())
     }
 
     pub fn delete_sop_item(&self, id: i64) -> SqliteResult<()> {

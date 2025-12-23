@@ -22,7 +22,9 @@
   "sidebar": {
     "searchProject": "Search project",
     "emptyMessage": "No items, click + to create",
-    "itemList": "Item List"
+    "itemList": "Item List",
+    "rename": "Rename",
+    "delete": "Delete"
   },
   "newItem": {
     "icon": "Icon",

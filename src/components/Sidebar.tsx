@@ -22,6 +22,9 @@ import {
   Home,
   Settings,
   Users,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -37,6 +40,13 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import UserInfo from "./UserInfo";
 
 interface SopItem {
@@ -73,6 +83,8 @@ export default function AppSidebar() {
   const location = useLocation();
   const [items, setItems] = useState<SopItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingName, setEditingName] = useState("");
 
   const fetchItems = async () => {
     try {
@@ -95,6 +107,49 @@ export default function AppSidebar() {
 
   const getIcon = (iconName: string): LucideIcon => {
     return ICON_MAP[iconName] || Folder;
+  };
+
+  const handleRename = async (id: number) => {
+    if (!editingName.trim()) {
+      setEditingId(null);
+      return;
+    }
+    try {
+      await invoke("rename_sop_item", { id, name: editingName });
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, name: editingName } : item
+        )
+      );
+    } catch (error) {
+      console.error("Failed to rename item:", error);
+    }
+    setEditingId(null);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      await invoke("delete_sop_item", { id });
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      // Navigate to home if the deleted item was currently viewed
+      const itemPath = items.find((item) => item.id === id);
+      if (itemPath) {
+        const currentPath =
+          itemPath.item_type === "todo"
+            ? `/todo/${itemPath.id}`
+            : `/flow/${itemPath.id}`;
+        if (location.pathname === currentPath) {
+          navigate("/");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+    }
+  };
+
+  const startEditing = (item: SopItem) => {
+    setEditingId(item.id);
+    setEditingName(item.name);
   };
 
   return (
@@ -146,26 +201,76 @@ export default function AppSidebar() {
                   {t('sidebar.emptyMessage')}
                 </div>
               ) : (
-                items.map((item) => {
+              items.map((item) => {
                   const Icon = getIcon(item.icon);
                   const itemPath =
                     item.item_type === "todo"
                       ? `/todo/${item.id}`
                       : `/flow/${item.id}`;
                   const isActive = location.pathname === itemPath;
+                  const isEditing = editingId === item.id;
                   const handleItemClick = () => {
-                    navigate(itemPath);
+                    if (!isEditing) {
+                      navigate(itemPath);
+                    }
                   };
                   return (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton
-                        tooltip={item.name}
-                        onClick={handleItemClick}
-                        isActive={isActive}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                      </SidebarMenuButton>
+                    <SidebarMenuItem key={item.id} className="group/item">
+                      {isEditing ? (
+                        <div className="flex items-center gap-2 px-2 py-1">
+                          <Icon className="w-4 h-4 shrink-0" />
+                          <Input
+                            type="text"
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            onBlur={() => handleRename(item.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                handleRename(item.id);
+                              } else if (e.key === "Escape") {
+                                setEditingId(null);
+                              }
+                            }}
+                            className="h-6 text-sm"
+                            autoFocus
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center w-full">
+                          <SidebarMenuButton
+                            tooltip={item.name}
+                            onClick={handleItemClick}
+                            isActive={isActive}
+                            className="flex-1"
+                          >
+                            <Icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                          </SidebarMenuButton>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                className="p-1 opacity-0 group-hover/item:opacity-100 hover:bg-sidebar-accent rounded transition-opacity"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" side="right">
+                              <DropdownMenuItem onClick={() => startEditing(item)}>
+                                <Pencil className="w-4 h-4" />
+                                <span>{t('sidebar.rename')}</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => handleDelete(item.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                <span>{t('sidebar.delete')}</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      )}
                     </SidebarMenuItem>
                   );
                 })

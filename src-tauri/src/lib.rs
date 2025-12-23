@@ -18,6 +18,7 @@ pub struct SopItem {
     pub item_type: String, // "todo" or "flowchart"
     pub created_at: String,
     pub updated_at: String,
+    pub deleted_at: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -85,7 +86,31 @@ fn get_all_sop_items(state: tauri::State<AppState>) -> Result<Vec<SopItem>, Stri
 #[tauri::command]
 fn delete_sop_item(state: tauri::State<AppState>, id: i64) -> Result<(), String> {
     let db = state.db.lock().map_err(|e| e.to_string())?;
-    db.delete_sop_item(id).map_err(|e| e.to_string())
+    db.soft_delete_sop_item(id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn rename_sop_item(state: tauri::State<AppState>, id: i64, name: String) -> Result<SopItem, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.rename_sop_item(id, &name).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_deleted_sop_items(state: tauri::State<AppState>) -> Result<Vec<SopItem>, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.get_deleted_sop_items().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn restore_sop_item(state: tauri::State<AppState>, id: i64) -> Result<SopItem, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.restore_sop_item(id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn permanently_delete_sop_item(state: tauri::State<AppState>, id: i64) -> Result<(), String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.permanently_delete_sop_item(id).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -149,6 +174,10 @@ pub fn run() {
             create_sop_item,
             get_all_sop_items,
             delete_sop_item,
+            rename_sop_item,
+            get_deleted_sop_items,
+            restore_sop_item,
+            permanently_delete_sop_item,
             create_todo_item,
             get_todo_items,
             toggle_todo_item,

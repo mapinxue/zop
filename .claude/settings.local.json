@@ -5,7 +5,8 @@
       "Bash(cargo check)",
       "Bash(npm install @xyflow/react)",
       "Bash(npm install @dnd-kit/sortable @dnd-kit/utilities)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(cargo check --manifest-path E:/code/zop/src-tauri/Cargo.toml)"
     ],
     "deny": [],
     "ask": []
