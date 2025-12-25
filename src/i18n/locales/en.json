@@ -12,7 +12,10 @@
     "newItem": "New Item",
     "add": "Add",
     "enabled": "Enabled",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "save": "Save",
+    "saving": "Saving...",
+    "optional": "optional"
   },
   "home": {
     "welcome": "Welcome to Zop",
@@ -24,7 +27,8 @@
     "emptyMessage": "No items, click + to create",
     "itemList": "Item List",
     "rename": "Rename",
-    "delete": "Delete"
+    "delete": "Delete",
+    "aiHome": "AI Assistant"
   },
   "newItem": {
     "icon": "Icon",
@@ -134,7 +138,8 @@
     "logout": "Logout",
     "language": "Language",
     "chinese": "中文",
-    "english": "English"
+    "english": "English",
+    "aiConfig": "AI Config"
   },
   "toolbar": {
     "home": "Home",
@@ -149,5 +154,30 @@
     "maximize": "Maximize",
     "restore": "Restore",
     "close": "Close"
+  },
+  "aiConfig": {
+    "title": "AI Configuration",
+    "baseUrl": "API Base URL",
+    "baseUrlPlaceholder": "https://api.openai.com/v1",
+    "baseUrlHint": "API endpoint (OpenAI compatible)",
+    "apiKey": "API Key",
+    "apiKeyPlaceholder": "Enter your API key",
+    "modelName": "Model Name",
+    "modelPlaceholder": "gpt-4o",
+    "modelHint": "e.g., gpt-4o, claude-3-5-sonnet-20241022"
+  },
+  "aiHome": {
+    "placeholder": "Describe the process you want to automate...\n\nFor example: \"Create a process for handling customer support tickets, including initial triage, assignment, resolution, and follow-up steps.\"",
+    "reset": "Reset",
+    "generate": "Generate",
+    "generating": "Generating...",
+    "sopTitle": "SOP Title",
+    "steps": "Steps",
+    "newStep": "New Step",
+    "stepLabel": "Step name",
+    "stepContent": "Step description...",
+    "startOver": "Start Over",
+    "createFlow": "Create Flow",
+    "creating": "Creating..."
   }
 }

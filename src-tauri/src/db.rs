@@ -2,7 +2,7 @@ use rusqlite::{Connection, Result as SqliteResult};
 use std::fs;
 use std::path::PathBuf;
 
-use crate::{CreateSopItem, CreateTodoItem, FlowData, SopItem, TodoItem};
+use crate::{CreateSopItem, CreateTodoItem, FlowData, SopItem, TodoItem, AiConfig, SaveAiConfig};
 
 pub struct Database {
     conn: Connection,
@@ -77,6 +77,18 @@ impl Database {
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
                 FOREIGN KEY (sop_id) REFERENCES sop_items(id) ON DELETE CASCADE
+            )",
+            [],
+        )?;
+
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS ai_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                base_url TEXT NOT NULL,
+                api_key TEXT NOT NULL,
+                model_name TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
             )",
             [],
         )?;
@@ -365,5 +377,49 @@ impl Database {
         }
 
         self.get_flow_data(sop_id)?.ok_or(rusqlite::Error::QueryReturnedNoRows)
+    }
+
+    pub fn get_ai_config(&self) -> SqliteResult<Option<AiConfig>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, base_url, api_key, model_name, created_at, updated_at FROM ai_config ORDER BY id DESC LIMIT 1"
+        )?;
+
+        let result = stmt.query_row([], |row| {
+            Ok(AiConfig {
+                id: row.get(0)?,
+                base_url: row.get(1)?,
+                api_key: row.get(2)?,
+                model_name: row.get(3)?,
+                created_at: row.get(4)?,
+                updated_at: row.get(5)?,
+            })
+        });
+
+        match result {
+            Ok(config) => Ok(Some(config)),
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn save_ai_config(&self, config: &SaveAiConfig) -> SqliteResult<AiConfig> {
+        let now = chrono::Utc::now().to_rfc3339();
+
+        // Check if config exists
+        let existing = self.get_ai_config()?;
+
+        if let Some(existing_config) = existing {
+            self.conn.execute(
+                "UPDATE ai_config SET base_url = ?1, api_key = ?2, model_name = ?3, updated_at = ?4 WHERE id = ?5",
+                (&config.base_url, &config.api_key, &config.model_name, &now, existing_config.id),
+            )?;
+        } else {
+            self.conn.execute(
+                "INSERT INTO ai_config (base_url, api_key, model_name, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5)",
+                (&config.base_url, &config.api_key, &config.model_name, &now, &now),
+            )?;
+        }
+
+        self.get_ai_config()?.ok_or(rusqlite::Error::QueryReturnedNoRows)
     }
 }

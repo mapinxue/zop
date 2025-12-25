@@ -25,6 +25,7 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -39,6 +40,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -188,8 +190,29 @@ export default function AppSidebar() {
 
       {/* Content */}
       <SidebarContent>
+        {/* AI Home Button */}
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel className="sr-only">{t('sidebar.itemList')}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip={t('sidebar.aiHome')}
+                  onClick={() => navigate('/')}
+                  isActive={location.pathname === '/'}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>{t('sidebar.aiHome')}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
+
+        {/* Project List */}
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel>{t('sidebar.itemList')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {isLoading ? (

@@ -9,6 +9,8 @@ import NewItem from "./pages/NewItem";
 import TodoDetail from "./pages/TodoDetail";
 import FlowDetail from "./pages/FlowDetail";
 import FlowExecute from "./pages/FlowExecute";
+import AiConfig from "./pages/AiConfig";
+import AiHome from "./pages/AiHome";
 import "./App.css";
 import '@xyflow/react/dist/style.css';
 
@@ -31,12 +33,14 @@ function App() {
               <SidebarInset>
                 <Toolbar />
                 <Routes>
-                  <Route path="/" element={<Home />} />
+                  <Route path="/" element={<AiHome />} />
+                  <Route path="/home" element={<Home />} />
                   <Route path="/new" element={<NewItem />} />
                   <Route path="/todo/:id" element={<TodoDetail />} />
                   <Route path="/flow/:id" element={<FlowDetail />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/ai-config" element={<AiConfig />} />
                 </Routes>
               </SidebarInset>
             </SidebarProvider>

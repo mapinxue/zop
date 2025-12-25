@@ -1,5 +1,6 @@
-import { ChevronsUpDown, CloudOff, LogOut, User, Languages, Check } from "lucide-react";
+import { ChevronsUpDown, CloudOff, LogOut, User, Languages, Check, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 export default function UserInfo() {
   const { t, i18n } = useTranslation();
   const { state } = useSidebar();
+  const navigate = useNavigate();
 
   const name = "User";
   const email = "user@zhiliang.com";
@@ -81,6 +83,12 @@ export default function UserInfo() {
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
+
+        {/* AI Config */}
+        <DropdownMenuItem onClick={() => navigate('/ai-config')}>
+          <Settings className="size-4" />
+          <span>{t('userInfo.aiConfig')}</span>
+        </DropdownMenuItem>
 
         {/* Language Selector - enabled */}
         <DropdownMenuSub>

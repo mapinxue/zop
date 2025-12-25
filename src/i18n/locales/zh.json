@@ -12,7 +12,10 @@
     "newItem": "新建事项",
     "add": "添加",
     "enabled": "已开启",
-    "disabled": "已关闭"
+    "disabled": "已关闭",
+    "save": "保存",
+    "saving": "保存中...",
+    "optional": "可选"
   },
   "home": {
     "welcome": "欢迎使用 Zop",
@@ -24,7 +27,8 @@
     "emptyMessage": "暂无事项，点击 + 创建",
     "itemList": "事项列表",
     "rename": "重命名",
-    "delete": "删除"
+    "delete": "删除",
+    "aiHome": "AI 助手"
   },
   "newItem": {
     "icon": "图标",
@@ -134,7 +138,8 @@
     "logout": "退出登录",
     "language": "语言",
     "chinese": "中文",
-    "english": "English"
+    "english": "English",
+    "aiConfig": "AI 配置"
   },
   "toolbar": {
     "home": "首页",
@@ -149,5 +154,30 @@
     "maximize": "最大化",
     "restore": "还原",
     "close": "关闭"
+  },
+  "aiConfig": {
+    "title": "AI 配置",
+    "baseUrl": "接口地址",
+    "baseUrlPlaceholder": "https://api.openai.com/v1",
+    "baseUrlHint": "API 端点（OpenAI 兼容）",
+    "apiKey": "API 密钥",
+    "apiKeyPlaceholder": "输入您的 API 密钥",
+    "modelName": "模型名称",
+    "modelPlaceholder": "gpt-4o",
+    "modelHint": "例如：gpt-4o、claude-3-5-sonnet-20241022"
+  },
+  "aiHome": {
+    "placeholder": "描述您想要自动化的流程...\n\n例如：「创建一个处理客户支持工单的流程，包括初始分类、分配、解决和后续跟进步骤。」",
+    "reset": "重置",
+    "generate": "生成",
+    "generating": "生成中...",
+    "sopTitle": "SOP 标题",
+    "steps": "步骤",
+    "newStep": "新步骤",
+    "stepLabel": "步骤名称",
+    "stepContent": "步骤描述...",
+    "startOver": "重新开始",
+    "createFlow": "创建流程图",
+    "creating": "创建中..."
   }
 }

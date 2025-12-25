@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use tauri::Manager;
+use async_openai::{
+    Client,
+    config::OpenAIConfig,
+    types::{CreateChatCompletionRequestArgs, ChatCompletionRequestUserMessageArgs, ChatCompletionRequestSystemMessageArgs},
+};
 
 mod db;
 
@@ -53,6 +58,23 @@ pub struct FlowData {
     pub edges: String,
     pub created_at: String,
     pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AiConfig {
+    pub id: i64,
+    pub base_url: String,
+    pub api_key: String,
+    pub model_name: String,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SaveAiConfig {
+    pub base_url: String,
+    pub api_key: String,
+    pub model_name: String,
 }
 
 #[tauri::command]
@@ -161,6 +183,101 @@ fn save_flow_data(state: tauri::State<AppState>, sop_id: i64, nodes: String, edg
     db.save_flow_data(sop_id, &nodes, &edges).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn get_ai_config(state: tauri::State<AppState>) -> Result<Option<AiConfig>, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.get_ai_config().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn save_ai_config(state: tauri::State<AppState>, config: SaveAiConfig) -> Result<AiConfig, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    db.save_ai_config(&config).map_err(|e| e.to_string())
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SopStep {
+    pub step_type: String,  // "start", "read", "form", "end"
+    pub label: String,
+    pub content: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct GeneratedSop {
+    pub title: String,
+    pub steps: Vec<SopStep>,
+}
+
+#[tauri::command]
+async fn generate_sop(state: tauri::State<'_, AppState>, prompt: String) -> Result<GeneratedSop, String> {
+    // Get AI config
+    let config = {
+        let db = state.db.lock().map_err(|e| e.to_string())?;
+        db.get_ai_config().map_err(|e| e.to_string())?
+    };
+
+    let config = config.ok_or("AI configuration not found. Please configure AI settings first.")?;
+
+    // Create OpenAI client with custom config
+    let openai_config = OpenAIConfig::new()
+        .with_api_key(&config.api_key)
+        .with_api_base(&config.base_url);
+
+    let client = Client::with_config(openai_config);
+
+    let system_prompt = r#"You are an SOP (Standard Operating Procedure) generator. Based on the user's description, generate a structured SOP with clear steps.
+
+Output format must be valid JSON with this structure:
+{
+  "title": "SOP Title",
+  "steps": [
+    {"step_type": "start", "label": "Start", "content": null},
+    {"step_type": "read", "label": "Step Name", "content": "Detailed description"},
+    {"step_type": "form", "label": "Input Step", "content": "What user needs to input"},
+    {"step_type": "end", "label": "End", "content": null}
+  ]
+}
+
+Rules:
+1. Always start with a "start" step and end with an "end" step
+2. Use "read" for information/instruction steps
+3. Use "form" for steps that require user input or action
+4. Keep labels concise (2-5 words)
+5. Content should be clear and actionable
+6. Generate 4-10 steps typically
+7. Output ONLY the JSON, no other text"#;
+
+    let request = CreateChatCompletionRequestArgs::default()
+        .model(&config.model_name)
+        .messages([
+            ChatCompletionRequestSystemMessageArgs::default()
+                .content(system_prompt)
+                .build()
+                .map_err(|e| e.to_string())?
+                .into(),
+            ChatCompletionRequestUserMessageArgs::default()
+                .content(prompt)
+                .build()
+                .map_err(|e| e.to_string())?
+                .into(),
+        ])
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let response = client.chat().create(request).await.map_err(|e| e.to_string())?;
+
+    let content = response.choices
+        .first()
+        .and_then(|c| c.message.content.as_ref())
+        .ok_or("No response from AI")?;
+
+    // Parse JSON response
+    let generated: GeneratedSop = serde_json::from_str(content)
+        .map_err(|e| format!("Failed to parse AI response: {}. Response: {}", e, content))?;
+
+    Ok(generated)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db = Database::new().expect("Failed to initialize database");
@@ -185,7 +302,10 @@ pub fn run() {
             update_todo_item,
             reorder_todo_items,
             get_flow_data,
-            save_flow_data
+            save_flow_data,
+            get_ai_config,
+            save_ai_config,
+            generate_sop
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
