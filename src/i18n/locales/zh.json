@@ -58,7 +58,10 @@
     "addNode": "添加节点",
     "readNodeConfig": "阅读节点配置",
     "formNodeConfig": "表单节点配置",
-    "nodeName": "节点名称"
+    "nodeName": "节点名称",
+    "nodeContent": "节点内容",
+    "nodeContentPlaceholder": "输入 Markdown 内容...",
+    "noContent": "暂无内容"
   },
   "flowExecute": {
     "step": "步骤",

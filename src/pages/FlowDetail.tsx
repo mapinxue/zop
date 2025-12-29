@@ -19,9 +19,12 @@ import {
   useReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
-import { Play, FileText, FormInput, CircleStop, Hammer, PlayCircle, X } from "lucide-react";
+import { Play, FileText, FormInput, CircleStop, Hammer, PlayCircle, X, Eye, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface FlowData {
   id: number;
@@ -100,6 +103,7 @@ function FlowDetailInner() {
   const [isLoading, setIsLoading] = useState(true);
   const [isToolbarExpanded, setIsToolbarExpanded] = useState(false);
   const [selectedNode, setSelectedNode] = useState<EditableNode | null>(null);
+  const [isContentEditing, setIsContentEditing] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -320,6 +324,22 @@ function FlowDetailInner() {
     );
   };
 
+  const updateNodeContent = (nodeId: string, newContent: string) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, config: { ...node.data.config, content: newContent } } }
+          : node
+      )
+    );
+    // Update selectedNode to reflect the change
+    setSelectedNode((prev) =>
+      prev && prev.id === nodeId
+        ? { ...prev, data: { ...prev.data, config: { ...prev.data.config, content: newContent } } }
+        : prev
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center bg-background">
@@ -446,6 +466,49 @@ function FlowDetailInner() {
                 onChange={(e) => updateNodeData(selectedNode.id, e.target.value)}
                 className="w-full"
               />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-foreground">
+                  {t('flowDetail.nodeContent')}
+                </label>
+                <div className="flex gap-1">
+                  <Button
+                    variant={isContentEditing ? "default" : "ghost"}
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setIsContentEditing(true)}
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={!isContentEditing ? "default" : "ghost"}
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => setIsContentEditing(false)}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              {isContentEditing ? (
+                <Textarea
+                  value={selectedNode.data.config?.content || ""}
+                  onChange={(e) => updateNodeContent(selectedNode.id, e.target.value)}
+                  placeholder={t('flowDetail.nodeContentPlaceholder')}
+                  className="w-full min-h-[200px] resize-none font-mono text-sm"
+                />
+              ) : (
+                <div className="w-full min-h-[200px] p-3 rounded-md border border-input bg-background overflow-auto prose prose-sm dark:prose-invert max-w-none">
+                  {selectedNode.data.config?.content ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {selectedNode.data.config.content}
+                    </ReactMarkdown>
+                  ) : (
+                    <p className="text-muted-foreground italic">{t('flowDetail.noContent')}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

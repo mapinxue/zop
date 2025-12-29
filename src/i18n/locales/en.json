@@ -58,7 +58,10 @@
     "addNode": "Add Node",
     "readNodeConfig": "Read Node Config",
     "formNodeConfig": "Form Node Config",
-    "nodeName": "Node Name"
+    "nodeName": "Node Name",
+    "nodeContent": "Node Content",
+    "nodeContentPlaceholder": "Enter Markdown content...",
+    "noContent": "No content"
   },
   "flowExecute": {
     "step": "Step",

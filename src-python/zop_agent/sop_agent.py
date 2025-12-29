@@ -1,5 +1,5 @@
 """
-SOP Generator Agent using Atomic Agents framework.
+SOP Generator Agent.
 
 This agent takes a user's process description and generates a structured SOP
 with steps that can be converted into a flowchart.
@@ -8,6 +8,7 @@ with steps that can be converted into a flowchart.
 from pydantic import Field, BaseModel
 from typing import Optional
 import instructor
+from instructor import Mode
 import openai
 
 
@@ -61,11 +62,13 @@ class SopGeneratorAgent:
         self.model_name = model_name
 
         # Create OpenAI client with custom base URL
+        # Use JSON mode for better compatibility with various providers
         self.client = instructor.from_openai(
             openai.OpenAI(
                 base_url=base_url,
                 api_key=api_key,
-            )
+            ),
+            mode=Mode.JSON,  # Use JSON mode instead of function calling
         )
 
         # System prompt for SOP generation
@@ -81,11 +84,17 @@ Rules:
 6. Generate 4-10 steps typically
 7. Make steps logical and sequential
 
-Example output structure:
-- Start step: Introduction to the process
-- Read steps: Information users need to know
-- Form steps: Actions users need to take or inputs they need to provide
-- End step: Conclusion/completion message"""
+You must respond with valid JSON matching this schema:
+{
+  "title": "string - Title of the SOP",
+  "steps": [
+    {
+      "step_type": "start|read|form|end",
+      "label": "string - Short label (2-5 words)",
+      "content": "string or null - Detailed description"
+    }
+  ]
+}"""
 
     def generate(self, prompt: str) -> SopGeneratorOutputSchema:
         """
