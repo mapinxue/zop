@@ -6,7 +6,21 @@
       "Bash(npm install @xyflow/react)",
       "Bash(npm install @dnd-kit/sortable @dnd-kit/utilities)",
       "Bash(npm run build)",
-      "Bash(cargo check --manifest-path E:/code/zop/src-tauri/Cargo.toml)"
+      "Bash(cargo check --manifest-path E:/code/zop/src-tauri/Cargo.toml)",
+      "WebSearch",
+      "WebFetch(domain:brainblend-ai.github.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:dev.to)",
+      "Bash(cat E:/code/zop/src-tauri/tauri.conf.json)",
+      "Bash(cat \"E:/code/zop/src-tauri/Cargo.toml\")",
+      "Bash(cat \"E:/code/zop/src-tauri/src/db.rs\")",
+      "Bash(cat db.rs)",
+      "Bash(python3 -c \"\ncontent = open\\(''db.rs'', ''r''\\).read\\(\\)\nold_code = ''''''        self.conn.execute\\(\n            \"\"CREATE TABLE IF NOT EXISTS ai_config \\(\n                id INTEGER PRIMARY KEY AUTOINCREMENT,\n                base_url TEXT NOT NULL,\n                api_key TEXT NOT NULL,\n                model_name TEXT NOT NULL,\n                created_at TEXT NOT NULL,\n                updated_at TEXT NOT NULL\n            \\)\"\",\n            [],\n        \\)?;\n\n        Ok\\(\\(\\)\\)''''''\n\nnew_code = ''''''        // Migration: Drop old ai_config table if it has the old schema \\(with provider column\\)\n        let has_old_schema: bool = self.conn\n            .prepare\\(\"\"SELECT provider FROM ai_config LIMIT 1\"\"\\)\n            .is_ok\\(\\);\n\n        if has_old_schema {\n            let _ = self.conn.execute\\(\"\"DROP TABLE ai_config\"\", []\\);\n        }\n\n        self.conn.execute\\(\n            \"\"CREATE TABLE IF NOT EXISTS ai_config \\(\n                id INTEGER PRIMARY KEY AUTOINCREMENT,\n                base_url TEXT NOT NULL,\n                api_key TEXT NOT NULL,\n                model_name TEXT NOT NULL,\n                created_at TEXT NOT NULL,\n                updated_at TEXT NOT NULL\n            \\)\"\",\n            [],\n        \\)?;\n\n        Ok\\(\\(\\)\\)''''''\n\ncontent = content.replace\\(old_code, new_code\\)\nopen\\(''db.rs'', ''w''\\).write\\(content\\)\nprint\\(''Done''\\)\n\")",
+      "Bash(uv run python -c \"import atomic_agents; print\\(dir\\(atomic_agents\\)\\)\")",
+      "Bash(uv run python -c \"from atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig; print\\(''OK''\\)\")",
+      "Bash(uv run python -c \"\nfrom atomic_agents.agents.base_agent import BaseAgent, BaseAgentConfig, BaseIOSchema\nfrom atomic_agents.lib.components.system_prompt_generator import SystemPromptGenerator\nprint\\(''All imports OK''\\)\n\")",
+      "Bash(uv run python -c \"from zop_agent.sop_agent import SopGeneratorAgent, SopGeneratorOutputSchema; print\\(''Import OK''\\)\")",
+      "Bash(uv run python -c \"from zop_agent.main import app; print\\(''FastAPI app loaded OK''\\)\")"
     ],
     "deny": [],
     "ask": []

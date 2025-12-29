@@ -26,6 +26,7 @@ export default function AiConfig() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -52,17 +53,20 @@ export default function AiConfig() {
     }
 
     setIsSaving(true);
+    setError(null);
     try {
-      await invoke("save_ai_config", {
+      const result = await invoke("save_ai_config", {
         config: {
           base_url: baseUrl,
           api_key: apiKey,
           model_name: modelName,
         },
       });
+      console.log("AI config saved successfully:", result);
       navigate(-1);
     } catch (error) {
       console.error("Failed to save AI config:", error);
+      setError(String(error));
     } finally {
       setIsSaving(false);
     }
@@ -146,6 +150,13 @@ export default function AiConfig() {
               {t("aiConfig.modelHint")}
             </p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
+              {error}
+            </div>
+          )}
 
           {/* Save Button */}
           <div className="pt-4">

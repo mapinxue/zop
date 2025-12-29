@@ -8,8 +8,10 @@ use async_openai::{
 };
 
 mod db;
+mod sidecar;
 
 use db::Database;
+use sidecar::{SidecarState, AgentAiConfig, spawn_agent_sidecar};
 
 pub struct AppState {
     pub db: Mutex<Database>,
@@ -209,7 +211,7 @@ pub struct GeneratedSop {
 }
 
 #[tauri::command]
-async fn generate_sop(state: tauri::State<'_, AppState>, prompt: String) -> Result<GeneratedSop, String> {
+async fn generate_sop(app: tauri::AppHandle, state: tauri::State<'_, AppState>, prompt: String) -> Result<GeneratedSop, String> {
     // Get AI config
     let config = {
         let db = state.db.lock().map_err(|e| e.to_string())?;
@@ -218,6 +220,43 @@ async fn generate_sop(state: tauri::State<'_, AppState>, prompt: String) -> Resu
 
     let config = config.ok_or("AI configuration not found. Please configure AI settings first.")?;
 
+    // Try to use Python agent sidecar first
+    let sidecar_state = app.state::<SidecarState>();
+
+    // Spawn sidecar if not running
+    if let Err(e) = spawn_agent_sidecar(&app).await {
+        eprintln!("Failed to spawn sidecar, falling back to Rust implementation: {}", e);
+        // Fall back to Rust implementation
+        return generate_sop_rust(&config, prompt).await;
+    }
+
+    // Use Python agent
+    let agent_config = AgentAiConfig {
+        base_url: config.base_url.clone(),
+        api_key: config.api_key.clone(),
+        model_name: config.model_name.clone(),
+    };
+
+    match sidecar_state.generate_sop(prompt.clone(), agent_config).await {
+        Ok(result) => {
+            // Convert AgentGeneratedSop to GeneratedSop
+            Ok(GeneratedSop {
+                title: result.title,
+                steps: result.steps.into_iter().map(|s| SopStep {
+                    step_type: s.step_type,
+                    label: s.label,
+                    content: s.content,
+                }).collect(),
+            })
+        }
+        Err(e) => {
+            eprintln!("Python agent failed, falling back to Rust: {}", e);
+            generate_sop_rust(&config, prompt).await
+        }
+    }
+}
+
+async fn generate_sop_rust(config: &AiConfig, prompt: String) -> Result<GeneratedSop, String> {
     // Create OpenAI client with custom config
     let openai_config = OpenAIConfig::new()
         .with_api_key(&config.api_key)
@@ -284,7 +323,9 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(AppState { db: Mutex::new(db) })
+        .manage(SidecarState::new())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             toggle_always_on_top,

@@ -81,6 +81,15 @@ impl Database {
             [],
         )?;
 
+        // Migration: Drop old ai_config table if it has the old schema (with provider column)
+        let has_old_schema: bool = self.conn
+            .prepare("SELECT provider FROM ai_config LIMIT 1")
+            .is_ok();
+
+        if has_old_schema {
+            let _ = self.conn.execute("DROP TABLE ai_config", []);
+        }
+
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS ai_config (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
