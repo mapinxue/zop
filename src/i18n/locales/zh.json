@@ -61,7 +61,9 @@
     "nodeName": "节点名称",
     "nodeContent": "节点内容",
     "nodeContentPlaceholder": "输入 Markdown 内容...",
-    "noContent": "暂无内容"
+    "noContent": "暂无内容",
+    "previousNode": "上一个",
+    "nextNode": "下一个"
   },
   "flowExecute": {
     "step": "步骤",
@@ -74,7 +76,9 @@
     "startHint": "点击下一步开始流程",
     "readHint": "阅读上方内容，然后点击下一步",
     "formHint": "填写表单，然后点击下一步",
-    "endHint": "您已到达流程的终点"
+    "endHint": "您已到达流程的终点",
+    "current": "当前",
+    "toc": "目录"
   },
   "about": {
     "title": "关于",

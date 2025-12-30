@@ -61,7 +61,9 @@
     "nodeName": "Node Name",
     "nodeContent": "Node Content",
     "nodeContentPlaceholder": "Enter Markdown content...",
-    "noContent": "No content"
+    "noContent": "No content",
+    "previousNode": "Previous",
+    "nextNode": "Next"
   },
   "flowExecute": {
     "step": "Step",
@@ -74,7 +76,9 @@
     "startHint": "Click Next to begin the flow",
     "readHint": "Read the content above, then click Next",
     "formHint": "Fill in the form, then click Next",
-    "endHint": "You have reached the end of the flow"
+    "endHint": "You have reached the end of the flow",
+    "current": "Current",
+    "toc": "Contents"
   },
   "about": {
     "title": "About",

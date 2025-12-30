@@ -19,10 +19,18 @@ import {
   useReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
-import { Play, FileText, FormInput, CircleStop, Hammer, PlayCircle, X, Eye, Edit3 } from "lucide-react";
+import { Play, FileText, FormInput, CircleStop, Hammer, PlayCircle, Eye, Edit3, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useSidebar } from "@/components/ui/sidebar";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from "@/components/ui/drawer";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -73,8 +81,7 @@ function EditableNode({ data, selected }: NodeProps<EditableNode>) {
         hover:shadow-md
       `}
     >
-      <Handle type="target" position={Position.Top} className="!bg-primary !w-2 !h-2" />
-      <Handle type="source" position={Position.Bottom} className="!bg-primary !w-2 !h-2" />
+      {/* Horizontal layout: target on left, source on right */}
       <Handle type="target" position={Position.Left} className="!bg-primary !w-2 !h-2" />
       <Handle type="source" position={Position.Right} className="!bg-primary !w-2 !h-2" />
 
@@ -97,6 +104,7 @@ function FlowDetailInner() {
   const navigate = useNavigate();
   const sopId = Number(id);
   const { screenToFlowPosition, getViewport } = useReactFlow();
+  const { setOpen: setSidebarOpen } = useSidebar();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<EditableNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -177,6 +185,29 @@ function FlowDetailInner() {
     };
   }, [nodes, edges, saveFlowData, isLoading]);
 
+  // Get node center Y position based on shape
+  const getNodeCenterY = (node: EditableNode) => {
+    const heights: Record<string, number> = {
+      start: 80,
+      end: 80,
+      read: 50,
+      form: 50,
+    };
+    const height = heights[node.data.shape] || 50;
+    return node.position.y + height / 2;
+  };
+
+  // Get node height based on shape
+  const getNodeHeight = (shape: string) => {
+    const heights: Record<string, number> = {
+      start: 80,
+      end: 80,
+      read: 50,
+      form: 50,
+    };
+    return heights[shape] || 50;
+  };
+
   const onConnect = useCallback(
     (params: Connection) => {
       // Find source and target nodes to determine edge type
@@ -185,12 +216,13 @@ function FlowDetailInner() {
 
       let edgeType = "smoothstep";
 
-      // Use straight line if nodes are aligned (within 5px tolerance)
+      // Use straight line if node centers are horizontally aligned (Y within 5px tolerance)
       if (sourceNode && targetNode) {
-        const xDiff = Math.abs(sourceNode.position.x - targetNode.position.x);
-        const yDiff = Math.abs(sourceNode.position.y - targetNode.position.y);
+        const sourceCenterY = getNodeCenterY(sourceNode);
+        const targetCenterY = getNodeCenterY(targetNode);
+        const yDiff = Math.abs(sourceCenterY - targetCenterY);
 
-        if (xDiff < 5 || yDiff < 5) {
+        if (yDiff < 5) {
           edgeType = "straight";
         }
       }
@@ -200,19 +232,56 @@ function FlowDetailInner() {
     [setEdges, nodes]
   );
 
-  // Dynamically update edge types when nodes move
+  // Dynamically update edge types and snap nodes when nearly aligned
   useEffect(() => {
     if (edges.length === 0 || nodes.length === 0) return;
+
+    // Check if any connected nodes need to snap to align centers
+    let needsNodeUpdate = false;
+    const updatedNodes = nodes.map((node) => {
+      // Find edges where this node is the target
+      const incomingEdges = edges.filter(e => e.target === node.id);
+
+      for (const edge of incomingEdges) {
+        const sourceNode = nodes.find(n => n.id === edge.source);
+        if (sourceNode) {
+          const sourceCenterY = getNodeCenterY(sourceNode);
+          const targetCenterY = getNodeCenterY(node);
+          const yDiff = Math.abs(sourceCenterY - targetCenterY);
+
+          // Snap to align centers if within 2px but not exactly aligned
+          if (yDiff > 0 && yDiff <= 2) {
+            needsNodeUpdate = true;
+            // Calculate new Y position so that centers align
+            const sourceHeight = getNodeHeight(sourceNode.data.shape);
+            const targetHeight = getNodeHeight(node.data.shape);
+            const newY = sourceNode.position.y + sourceHeight / 2 - targetHeight / 2;
+            return {
+              ...node,
+              position: { ...node.position, y: newY }
+            };
+          }
+        }
+      }
+      return node;
+    });
+
+    if (needsNodeUpdate) {
+      setNodes(updatedNodes);
+      return; // Let the next effect run handle edge updates
+    }
 
     const updatedEdges = edges.map((edge) => {
       const sourceNode = nodes.find(n => n.id === edge.source);
       const targetNode = nodes.find(n => n.id === edge.target);
 
       if (sourceNode && targetNode) {
-        const xDiff = Math.abs(sourceNode.position.x - targetNode.position.x);
-        const yDiff = Math.abs(sourceNode.position.y - targetNode.position.y);
+        const sourceCenterY = getNodeCenterY(sourceNode);
+        const targetCenterY = getNodeCenterY(targetNode);
+        const yDiff = Math.abs(sourceCenterY - targetCenterY);
 
-        const newType = (xDiff < 1 || yDiff < 1) ? "straight" : "smoothstep";
+        // Use straight line if node centers are horizontally aligned
+        const newType = (yDiff < 1) ? "straight" : "smoothstep";
 
         if (edge.type !== newType) {
           return { ...edge, type: newType };
@@ -301,8 +370,9 @@ function FlowDetailInner() {
     // Only show config for read and form nodes
     if (node.data.shape === "read" || node.data.shape === "form") {
       setSelectedNode(node);
+      setSidebarOpen(false); // Close left sidebar when opening node detail
     }
-  }, []);
+  }, [setSidebarOpen]);
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
@@ -338,6 +408,44 @@ function FlowDetailInner() {
         ? { ...prev, data: { ...prev.data, config: { ...prev.data.config, content: newContent } } }
         : prev
     );
+  };
+
+  // Get editable nodes (read and form only)
+  const editableNodes = nodes.filter(
+    (n) => n.data.shape === "read" || n.data.shape === "form"
+  );
+
+  // Get current node index in editable nodes
+  const currentEditableIndex = selectedNode
+    ? editableNodes.findIndex((n) => n.id === selectedNode.id)
+    : -1;
+
+  const handlePreviousNode = () => {
+    if (currentEditableIndex > 0) {
+      const prevNode = editableNodes[currentEditableIndex - 1];
+      setSelectedNode(prevNode);
+      // Sync selection in flowchart
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          selected: n.id === prevNode.id,
+        }))
+      );
+    }
+  };
+
+  const handleNextNode = () => {
+    if (currentEditableIndex < editableNodes.length - 1) {
+      const nextNode = editableNodes[currentEditableIndex + 1];
+      setSelectedNode(nextNode);
+      // Sync selection in flowchart
+      setNodes((nds) =>
+        nds.map((n) => ({
+          ...n,
+          selected: n.id === nextNode.id,
+        }))
+      );
+    }
   };
 
   if (isLoading) {
@@ -441,29 +549,27 @@ function FlowDetailInner() {
         </div>
       </div>
 
-      {/* Node Configuration Sidebar */}
-      {selectedNode && (
-        <div className="absolute top-0 right-0 h-full w-80 bg-background border-l border-border shadow-lg animate-in slide-in-from-right duration-200">
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <h3 className="font-semibold text-foreground">
-              {selectedNode.data.shape === "read" ? t('flowDetail.readNodeConfig') : t('flowDetail.formNodeConfig')}
-            </h3>
-            <button
-              onClick={() => setSelectedNode(null)}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="p-4 space-y-4">
+      {/* Node Configuration Drawer */}
+      <Drawer
+        open={!!selectedNode}
+        onOpenChange={(open) => !open && setSelectedNode(null)}
+        direction="bottom"
+      >
+        <DrawerContent>
+          <DrawerHeader className="border-b border-border">
+            <DrawerTitle>
+              {selectedNode?.data.shape === "read" ? t('flowDetail.readNodeConfig') : t('flowDetail.formNodeConfig')}
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 space-y-4 overflow-y-auto flex-1">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
                 {t('flowDetail.nodeName')}
               </label>
               <Input
                 type="text"
-                value={selectedNode.data.label}
-                onChange={(e) => updateNodeData(selectedNode.id, e.target.value)}
+                value={selectedNode?.data.label || ""}
+                onChange={(e) => selectedNode && updateNodeData(selectedNode.id, e.target.value)}
                 className="w-full"
               />
             </div>
@@ -493,14 +599,14 @@ function FlowDetailInner() {
               </div>
               {isContentEditing ? (
                 <Textarea
-                  value={selectedNode.data.config?.content || ""}
-                  onChange={(e) => updateNodeContent(selectedNode.id, e.target.value)}
+                  value={selectedNode?.data.config?.content || ""}
+                  onChange={(e) => selectedNode && updateNodeContent(selectedNode.id, e.target.value)}
                   placeholder={t('flowDetail.nodeContentPlaceholder')}
                   className="w-full min-h-[200px] resize-none font-mono text-sm"
                 />
               ) : (
-                <div className="w-full min-h-[200px] p-3 rounded-md border border-input bg-background overflow-auto prose prose-sm dark:prose-invert max-w-none">
-                  {selectedNode.data.config?.content ? (
+                <div className="w-full min-h-[200px] p-3 rounded-md border border-input bg-muted overflow-auto prose prose-sm dark:prose-invert max-w-none">
+                  {selectedNode?.data.config?.content ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {selectedNode.data.config.content}
                     </ReactMarkdown>
@@ -511,8 +617,30 @@ function FlowDetailInner() {
               )}
             </div>
           </div>
-        </div>
-      )}
+          <DrawerFooter className="border-t border-border">
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePreviousNode}
+                disabled={currentEditableIndex <= 0}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                {t('flowDetail.previousNode')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextNode}
+                disabled={currentEditableIndex >= editableNodes.length - 1}
+              >
+                {t('flowDetail.nextNode')}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
