@@ -121,11 +121,11 @@ export default function AiHome() {
         },
       });
 
-      // Convert steps to flow nodes and edges
+      // Convert steps to flow nodes and edges (horizontal layout: left to right)
       const nodes = generatedSop.steps.map((step, index) => ({
         id: `node-${Date.now()}-${index}`,
         type: "editable",
-        position: { x: 300, y: 100 + index * 120 },
+        position: { x: 100 + index * 180, y: 200 },
         data: {
           label: step.label,
           shape: step.step_type,
@@ -165,7 +165,7 @@ export default function AiHome() {
 
   return (
     <div className="h-full flex flex-col bg-background overflow-hidden">
-      <div className="flex-1 flex flex-col p-6 overflow-y-auto">
+      <div className="flex-1 flex flex-col p-6 overflow-y-auto justify-center">
         <div className="w-full max-w-3xl mx-auto space-y-6">
           {/* Input area */}
           {!generatedSop && (

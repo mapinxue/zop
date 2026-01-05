@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { invoke } from "@tauri-apps/api/core";
-import { X, ChevronRight, ChevronLeft, Check, Play, FileText, FormInput, CircleStop, List, CheckCircle2, Pin, PinOff } from "lucide-react";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { X, ChevronRight, ChevronLeft, Check, Play, FileText, FormInput, CircleStop, List, CheckCircle2, Pin, PinOff, ArrowLeft, Upload, File, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,10 +28,16 @@ interface EditableNodeData extends Record<string, unknown> {
   shape: "start" | "read" | "form" | "end";
   config?: {
     content?: string;
+    allowAttachment?: boolean;
   };
 }
 
 type EditableNode = Node<EditableNodeData>;
+
+interface UploadedFile {
+  file_name: string;
+  file_path: string;
+}
 
 export default function FlowExecute() {
   const { t } = useTranslation();
@@ -44,6 +52,7 @@ export default function FlowExecute() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isTocOpen, setIsTocOpen] = useState(true); // Default open
   const [isAlwaysOnTop, setIsAlwaysOnTop] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, UploadedFile[]>>({});
 
   // Load flow data
   useEffect(() => {
@@ -194,6 +203,12 @@ export default function FlowExecute() {
     }
   };
 
+  const appWindow = getCurrentWindow();
+
+  const handleDragWindow = () => {
+    appWindow.startDragging();
+  };
+
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center bg-background">
@@ -217,7 +232,7 @@ export default function FlowExecute() {
   return (
     <div className="h-full w-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border select-none">
         <div className="flex items-center gap-4">
           {/* Table of Contents Dropdown */}
           <DropdownMenu open={isTocOpen} onOpenChange={(open) => open && setIsTocOpen(true)} modal={false}>
@@ -278,6 +293,13 @@ export default function FlowExecute() {
             />
           </div>
         </div>
+
+        {/* Draggable area */}
+        <div
+          className="flex-1 h-full cursor-move"
+          onMouseDown={handleDragWindow}
+        />
+
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -291,8 +313,8 @@ export default function FlowExecute() {
               <PinOff className="w-5 h-5 text-muted-foreground" />
             )}
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleExit}>
-            <X className="w-5 h-5" />
+          <Button variant="ghost" size="icon" onClick={handleExit} title={t('flowExecute.exit')}>
+            <ArrowLeft className="w-5 h-5" />
           </Button>
         </div>
       </div>

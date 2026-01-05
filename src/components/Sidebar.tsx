@@ -191,7 +191,7 @@ export default function AppSidebar() {
       {/* Content */}
       <SidebarContent>
         {/* AI Home Button */}
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden pt-6">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -199,6 +199,7 @@ export default function AppSidebar() {
                   tooltip={t('sidebar.aiHome')}
                   onClick={() => navigate('/')}
                   isActive={location.pathname === '/'}
+                  className="h-16 border border-dashed border-muted-foreground/50 rounded-lg data-[active=true]:border-solid"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>{t('sidebar.aiHome')}</span>

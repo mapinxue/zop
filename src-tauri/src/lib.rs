@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
+use std::fs;
+use std::path::PathBuf;
 use tauri::Manager;
 use async_openai::{
     Client,
@@ -197,6 +199,62 @@ fn save_ai_config(state: tauri::State<AppState>, config: SaveAiConfig) -> Result
     db.save_ai_config(&config).map_err(|e| e.to_string())
 }
 
+#[derive(Debug, Serialize, Clone)]
+pub struct UploadedFile {
+    pub file_name: String,
+    pub file_path: String,
+}
+
+fn get_uploads_dir() -> Result<PathBuf, String> {
+    let home_dir = dirs::home_dir().ok_or("Could not find home directory")?;
+    let uploads_dir = home_dir.join(".zop").join("uploads");
+
+    if !uploads_dir.exists() {
+        fs::create_dir_all(&uploads_dir).map_err(|e| e.to_string())?;
+    }
+
+    Ok(uploads_dir)
+}
+
+#[tauri::command]
+fn upload_file(sop_id: i64, node_id: String, file_path: String) -> Result<UploadedFile, String> {
+    let source_path = PathBuf::from(&file_path);
+
+    if !source_path.exists() {
+        return Err("Source file does not exist".to_string());
+    }
+
+    let file_name = source_path
+        .file_name()
+        .ok_or("Invalid file name")?
+        .to_string_lossy()
+        .to_string();
+
+    // Create a folder structure: uploads/{sop_id}/{node_id}/
+    let uploads_dir = get_uploads_dir()?;
+    let dest_dir = uploads_dir.join(sop_id.to_string()).join(&node_id);
+
+    if !dest_dir.exists() {
+        fs::create_dir_all(&dest_dir).map_err(|e| e.to_string())?;
+    }
+
+    let dest_path = dest_dir.join(&file_name);
+
+    // Copy file to destination
+    fs::copy(&source_path, &dest_path).map_err(|e| e.to_string())?;
+
+    Ok(UploadedFile {
+        file_name,
+        file_path: dest_path.to_string_lossy().to_string(),
+    })
+}
+
+#[tauri::command]
+fn get_uploads_path() -> Result<String, String> {
+    let uploads_dir = get_uploads_dir()?;
+    Ok(uploads_dir.to_string_lossy().to_string())
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SopStep {
     pub step_type: String,  // "start", "read", "form", "end"
@@ -346,6 +404,8 @@ pub fn run() {
             save_flow_data,
             get_ai_config,
             save_ai_config,
+            upload_file,
+            get_uploads_path,
             generate_sop
         ])
         .run(tauri::generate_context!())

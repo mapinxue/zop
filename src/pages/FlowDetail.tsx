@@ -48,6 +48,7 @@ interface EditableNodeData extends Record<string, unknown> {
   shape: "start" | "read" | "form" | "end";
   config?: {
     content?: string;
+    allowAttachment?: boolean;
   };
 }
 
@@ -103,7 +104,7 @@ function FlowDetailInner() {
   const { id } = useParams();
   const navigate = useNavigate();
   const sopId = Number(id);
-  const { screenToFlowPosition, getViewport } = useReactFlow();
+  const { screenToFlowPosition, getViewport, fitView } = useReactFlow();
   const { setOpen: setSidebarOpen } = useSidebar();
 
   const [nodes, setNodes, onNodesChange] = useNodesState<EditableNode>([]);
@@ -136,6 +137,9 @@ function FlowDetailInner() {
   // Load flow data
   useEffect(() => {
     const loadFlowData = async () => {
+      setIsLoading(true);
+      setSelectedNode(null); // Reset selected node when switching
+
       try {
         const data = await invoke<FlowData | null>("get_flow_data", { sopId });
         if (data) {
@@ -143,6 +147,14 @@ function FlowDetailInner() {
           const parsedEdges = JSON.parse(data.edges) as Edge[];
           setNodes(parsedNodes);
           setEdges(parsedEdges);
+
+          // Fit view after nodes are loaded
+          setTimeout(() => {
+            fitView({ padding: 0.5, maxZoom: 1 });
+          }, 50);
+        } else {
+          setNodes([]);
+          setEdges([]);
         }
       } catch (error) {
         console.error("Failed to load flow data:", error);
@@ -152,7 +164,7 @@ function FlowDetailInner() {
     };
 
     loadFlowData();
-  }, [sopId]);
+  }, [sopId, fitView]);
 
   // Auto-save with debounce
   const saveFlowData = useCallback(async () => {
@@ -410,6 +422,22 @@ function FlowDetailInner() {
     );
   };
 
+  const updateNodeAllowAttachment = (nodeId: string, allowAttachment: boolean) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, config: { ...node.data.config, allowAttachment } } }
+          : node
+      )
+    );
+    // Update selectedNode to reflect the change
+    setSelectedNode((prev) =>
+      prev && prev.id === nodeId
+        ? { ...prev, data: { ...prev.data, config: { ...prev.data.config, allowAttachment } } }
+        : prev
+    );
+  };
+
   // Get editable nodes (read and form only)
   const editableNodes = nodes.filter(
     (n) => n.data.shape === "read" || n.data.shape === "form"
@@ -561,7 +589,7 @@ function FlowDetailInner() {
               {selectedNode?.data.shape === "read" ? t('flowDetail.readNodeConfig') : t('flowDetail.formNodeConfig')}
             </DrawerTitle>
           </DrawerHeader>
-          <div className="p-4 space-y-4 overflow-y-auto flex-1">
+          <div className="p-4 space-y-4 overflow-y-auto flex-1 max-w-2xl mx-auto w-full">
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground">
                 {t('flowDetail.nodeName')}
@@ -605,7 +633,7 @@ function FlowDetailInner() {
                   className="w-full min-h-[200px] resize-none font-mono text-sm"
                 />
               ) : (
-                <div className="w-full min-h-[200px] p-3 rounded-md border border-input bg-muted overflow-auto prose prose-sm dark:prose-invert max-w-none">
+                <div className="w-full min-h-[200px] p-3 rounded-md border border-input bg-muted overflow-auto prose prose-sm dark:prose-invert max-w-none [&_ol]:list-decimal [&_ol]:pl-4 [&_ul]:list-disc [&_ul]:pl-4">
                   {selectedNode?.data.config?.content ? (
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {selectedNode.data.config.content}
@@ -616,6 +644,37 @@ function FlowDetailInner() {
                 </div>
               )}
             </div>
+            {/* Attachment option - only for form nodes */}
+            {selectedNode?.data.shape === "form" && (
+              <div className="flex items-center justify-between py-3 px-1 border rounded-lg">
+                <div className="space-y-0.5">
+                  <label className="text-sm font-medium text-foreground">
+                    {t('flowDetail.allowAttachment')}
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    {t('flowDetail.allowAttachmentDesc')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={selectedNode?.data.config?.allowAttachment || false}
+                  onClick={() => selectedNode && updateNodeAllowAttachment(selectedNode.id, !selectedNode.data.config?.allowAttachment)}
+                  className={`
+                    relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent
+                    transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                    ${selectedNode?.data.config?.allowAttachment ? 'bg-primary' : 'bg-input'}
+                  `}
+                >
+                  <span
+                    className={`
+                      pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform
+                      ${selectedNode?.data.config?.allowAttachment ? 'translate-x-5' : 'translate-x-0'}
+                    `}
+                  />
+                </button>
+              </div>
+            )}
           </div>
           <DrawerFooter className="border-t border-border">
             <div className="flex justify-end gap-2">
