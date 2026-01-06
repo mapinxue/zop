@@ -255,6 +255,18 @@ fn get_uploads_path() -> Result<String, String> {
     Ok(uploads_dir.to_string_lossy().to_string())
 }
 
+#[tauri::command]
+fn clear_sop_uploads(sop_id: i64) -> Result<(), String> {
+    let uploads_dir = get_uploads_dir()?;
+    let sop_uploads_dir = uploads_dir.join(sop_id.to_string());
+
+    if sop_uploads_dir.exists() {
+        fs::remove_dir_all(&sop_uploads_dir).map_err(|e| e.to_string())?;
+    }
+
+    Ok(())
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SopStep {
     pub step_type: String,  // "start", "read", "form", "end"
@@ -384,6 +396,7 @@ pub fn run() {
         .manage(SidecarState::new())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             toggle_always_on_top,
@@ -406,6 +419,7 @@ pub fn run() {
             save_ai_config,
             upload_file,
             get_uploads_path,
+            clear_sop_uploads,
             generate_sop
         ])
         .run(tauri::generate_context!())

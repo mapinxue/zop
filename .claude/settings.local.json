@@ -22,7 +22,8 @@
       "Bash(uv run python -c \"from zop_agent.sop_agent import SopGeneratorAgent, SopGeneratorOutputSchema; print\\(''Import OK''\\)\")",
       "Bash(uv run python -c \"from zop_agent.main import app; print\\(''FastAPI app loaded OK''\\)\")",
       "Bash(npm ls react-markdown)",
-      "Bash(npm install react-markdown remark-gfm)"
+      "Bash(npm install react-markdown remark-gfm)",
+      "Bash(npm install @tauri-apps/plugin-dialog)"
     ],
     "deny": [],
     "ask": []

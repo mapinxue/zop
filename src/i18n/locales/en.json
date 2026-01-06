@@ -63,7 +63,9 @@
     "nodeContentPlaceholder": "Enter Markdown content...",
     "noContent": "No content",
     "previousNode": "Previous",
-    "nextNode": "Next"
+    "nextNode": "Next",
+    "allowAttachment": "Allow Attachment",
+    "allowAttachmentDesc": "Allow users to upload file attachments during execution"
   },
   "flowExecute": {
     "step": "Step",
@@ -78,7 +80,21 @@
     "formHint": "Fill in the form, then click Next",
     "endHint": "You have reached the end of the flow",
     "current": "Current",
-    "toc": "Contents"
+    "toc": "Contents",
+    "uploadFile": "Upload File",
+    "uploadHint": "Click to select file or drag and drop here",
+    "uploadedFiles": "Uploaded Files",
+    "fileStoredAt": "File stored at",
+    "removeFile": "Remove file",
+    "editFileName": "Edit note",
+    "fileNamePlaceholder": "Enter file note...",
+    "fileList": "File List",
+    "noFiles": "No uploaded files",
+    "openFolder": "Open folder",
+    "copyPath": "Copy path",
+    "downloadFile": "Download file",
+    "copyFile": "Copy file",
+    "pathCopied": "Path copied"
   },
   "about": {
     "title": "About",
